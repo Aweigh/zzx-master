@@ -31,7 +31,8 @@ import butterknife.ButterKnife;
  * 首页番剧新番连载Section
  */
 
-public class HomeBangumiNewSerialSection extends StatelessSection {
+public class HomeBangumiNewSerialSection extends StatelessSection
+{
     private Context mContext;
     private List<BangumiAppIndexInfo.ResultBean.SerializingBean> newBangumiSerials;
 

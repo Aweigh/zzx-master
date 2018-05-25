@@ -146,34 +146,14 @@ public class HomeBangumiFragment extends RxLazyFragment {
                         Log.e(Const.LOG_TAG,"请求视频首页失败," + reply.Message());
                         return;
                     }
-
-
+                    bannerList = BannerEntity.From(reply.GetJArray("adHead"));
+                    bangumibobys = BangumiAppIndexInfo.ResultBean.AdBean.BodyBean.From(reply.GetJArray("adBody"));
+                    newBangumiSerials = BangumiAppIndexInfo.ResultBean.SerializingBean.From(reply.GetJArray("hotItems"));
+                    finishTask();
                 },throwable -> {
+                    initEmptyView();
                     Log.e(Const.LOG_TAG,throwable.getMessage());
                 });
-
-        RetrofitHelper.getBangumiAPI()
-                .getBangumiAppIndex()
-                .compose(bindToLifecycle())
-                .flatMap(new Func1<BangumiAppIndexInfo, Observable<BangumiRecommendInfo>>() {
-                    @Override
-                    public Observable<BangumiRecommendInfo> call(BangumiAppIndexInfo bangumiAppIndexInfo) {
-                        banners.addAll(bangumiAppIndexInfo.getResult().getAd().getHead());
-                        bangumibobys.addAll(bangumiAppIndexInfo.getResult().getAd().getBody());
-                        seasonNewBangumis.addAll(bangumiAppIndexInfo.getResult().getPrevious().getList());
-                        season = bangumiAppIndexInfo.getResult().getPrevious().getSeason();
-                        newBangumiSerials.addAll(bangumiAppIndexInfo.getResult().getSerializing());
-                        return RetrofitHelper.getBangumiAPI().getBangumiRecommended();
-                    }
-                })
-                .compose(bindToLifecycle())
-                .map(BangumiRecommendInfo::getResult)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(resultBeans -> {
-                    bangumiRecommends.addAll(resultBeans);
-                    finishTask();
-                }, throwable -> initEmptyView());
     }
 
 
@@ -182,18 +162,24 @@ public class HomeBangumiFragment extends RxLazyFragment {
         mSwipeRefreshLayout.setRefreshing(false);
         mIsRefreshing = false;
         hideEmptyView();
-        Observable.from(banners)
-                .compose(bindToLifecycle())
-                .forEach(bannersBean -> bannerList.add(new BannerEntity(
-                        bannersBean.getLink(), bannersBean.getTitle(), bannersBean.getImg())));
-        mSectionedRecyclerViewAdapter.addSection(new HomeBangumiBannerSection(bannerList));
+
+        if(bannerList!=null && !bannerList.isEmpty())
+            mSectionedRecyclerViewAdapter.addSection(new HomeBangumiBannerSection(bannerList));
+
         mSectionedRecyclerViewAdapter.addSection(new HomeBangumiItemSection(getActivity()));
-        mSectionedRecyclerViewAdapter.addSection(new HomeBangumiNewSerialSection(getActivity(), newBangumiSerials));
-        if (!bangumibobys.isEmpty()) {
+
+        if(newBangumiSerials!=null && !newBangumiSerials.isEmpty())
+            mSectionedRecyclerViewAdapter.addSection(new HomeBangumiNewSerialSection(getActivity(), newBangumiSerials));
+
+        if (bangumibobys!=null && !bangumibobys.isEmpty())
             mSectionedRecyclerViewAdapter.addSection(new HomeBangumiBobySection(getActivity(), bangumibobys));
-        }
-        mSectionedRecyclerViewAdapter.addSection(new HomeBangumiSeasonNewSection(getActivity(), season, seasonNewBangumis));
-        mSectionedRecyclerViewAdapter.addSection(new HomeBangumiRecommendSection(getActivity(), bangumiRecommends));
+
+        if(seasonNewBangumis!=null && !seasonNewBangumis.isEmpty())
+            mSectionedRecyclerViewAdapter.addSection(new HomeBangumiSeasonNewSection(getActivity(), season, seasonNewBangumis));
+
+        if(bangumiRecommends!=null && !bangumiRecommends.isEmpty())
+            mSectionedRecyclerViewAdapter.addSection(new HomeBangumiRecommendSection(getActivity(), bangumiRecommends));
+
         mSectionedRecyclerViewAdapter.notifyDataSetChanged();
     }
 

@@ -1,5 +1,11 @@
 package com.hotbitmapgg.bilibili.entity.bangumi;
 
+import com.hotbitmapgg.bilibili.widget.banner.BannerEntity;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -79,7 +85,6 @@ public class BangumiAppIndexInfo {
                 return body;
             }
 
-
             public void setBody(List<BodyBean> body) {
                 this.body = body;
             }
@@ -92,11 +97,21 @@ public class BangumiAppIndexInfo {
                 this.head = head;
             }
 
-            public static class BodyBean {
+            public static class BodyBean
+            {
                 private String img;
                 private int index;
                 private String link;
                 private String title;
+
+                public BodyBean(JSONObject jo)
+                {
+                    if(jo==null) return;
+                    title = jo.optString("title");
+                    img = jo.optString("img");
+                    link = jo.optString("link");
+                    index = jo.optInt("index");
+                }
 
                 public String getImg() {
                     return img;
@@ -129,15 +144,43 @@ public class BangumiAppIndexInfo {
                 public void setTitle(String title) {
                     this.title = title;
                 }
+
+                ///<summary>将JSONObject对象数组转为BodyBean实体类数组</summary>
+                public static List<BodyBean> From(JSONArray arr)
+                {
+                    if(arr==null) return null;
+
+                    List<BodyBean> collection = new ArrayList<>();
+                    for (int i=0;i<arr.length();i++)
+                    {
+                        JSONObject o = arr.optJSONObject(i);
+                        if(o == null) continue;
+                        BodyBean item = new BodyBean(o);
+                        collection.add(item);
+                    }
+                    return  collection;
+                }
             }
 
-            public static class HeadBean {
+            public static class HeadBean
+            {
                 private int id;
                 private String img;
                 private int is_ad;
                 private String link;
                 private String pub_time;
                 private String title;
+
+                public HeadBean(JSONObject o)
+                {
+                    if(o==null) return;
+                    title = o.optString("title");
+                    img = o.optString("img");
+                    link = o.optString("link");
+                    id = o.optInt("id");
+                    is_ad = o.optInt("is_ad");
+                    pub_time = o.optString("pub_time");
+                }
 
                 public int getId() {
                     return id;
@@ -186,6 +229,22 @@ public class BangumiAppIndexInfo {
                 public void setTitle(String title) {
                     this.title = title;
                 }
+
+                ///<summary>将JSONObject对象数组转为HeadBean实体类数组</summary>
+                public static List<HeadBean> From(JSONArray arr)
+                {
+                    if(arr==null) return null;
+
+                    List<HeadBean> collection = new ArrayList<>();
+                    for (int i=0;i<arr.length();i++)
+                    {
+                        JSONObject o = arr.optJSONObject(i);
+                        if(o == null) continue;
+                        HeadBean item = new HeadBean(o);
+                        collection.add(item);
+                    }
+                    return  collection;
+                }
             }
         }
 
@@ -218,7 +277,8 @@ public class BangumiAppIndexInfo {
                 this.list = list;
             }
 
-            public static class ListBean {
+            public static class ListBean
+            {
                 private String cover;
                 private String favourites;
                 private int is_finish;
@@ -229,6 +289,36 @@ public class BangumiAppIndexInfo {
                 private int season_status;
                 private String title;
                 private int watching_count;
+
+                public ListBean(JSONObject o)
+                {
+                    if(o==null) return;
+                    cover = o.optString("cover");
+                    favourites = o.optString("favourites");
+                    is_finish = o.optInt("is_finish");
+                    last_time = o.optInt("last_time");
+                    newest_ep_index = o.optString("newest_ep_index");
+                    pub_time = o.optInt("pub_time");
+                    season_id = o.optInt("season_id");
+                    season_status = o.optInt("season_status");
+                    title = o.optString("title");
+                    watching_count = o.optInt("watching_count");
+                }
+                ///<summary>将JSONObject对象数组转为HeadBean实体类数组</summary>
+                public static List<ListBean> From(JSONArray arr)
+                {
+                    if(arr==null) return null;
+
+                    List<ListBean> collection = new ArrayList<>();
+                    for (int i=0;i<arr.length();i++)
+                    {
+                        JSONObject o = arr.optJSONObject(i);
+                        if(o == null) continue;
+                        ListBean item = new ListBean(o);
+                        collection.add(item);
+                    }
+                    return  collection;
+                }
 
                 public String getCover() {
                     return cover;
@@ -312,7 +402,8 @@ public class BangumiAppIndexInfo {
             }
         }
 
-        public static class SerializingBean {
+        public static class SerializingBean
+        {
             private String cover;
             private String favourites;
             private int is_finish;
@@ -324,6 +415,37 @@ public class BangumiAppIndexInfo {
             private int season_status;
             private String title;
             private int watching_count;
+
+            public SerializingBean(JSONObject o)
+            {
+                if(o==null) return;
+                cover = o.optString("cover");
+                favourites = o.optString("favourites");
+                is_finish = o.optInt("is_finish");
+                is_started = o.optInt("is_started");
+                last_time = o.optInt("last_time");
+                newest_ep_index = o.optString("newest_ep_index");//更新至第x话
+                pub_time = o.optInt("pub_time");
+                season_id = o.optInt("season_id");
+                season_status = o.optInt("season_status");
+                title = o.optString("title");
+                watching_count = o.optInt("watching_count");
+            }
+            ///<summary>将JSONObject对象数组转为实体类数组</summary>
+            public static List<SerializingBean> From(JSONArray arr)
+            {
+                if(arr==null) return null;
+
+                List<SerializingBean> collection = new ArrayList<>();
+                for (int i=0;i<arr.length();i++)
+                {
+                    JSONObject o = arr.optJSONObject(i);
+                    if(o == null) continue;
+                    SerializingBean item = new SerializingBean(o);
+                    collection.add(item);
+                }
+                return  collection;
+            }
 
             public String getCover() {
                 return cover;

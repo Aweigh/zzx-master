@@ -15,46 +15,26 @@ public class JsonUtil
     public static int GetInt(JSONObject obj, String key, int def)
     {
         if(obj==null||key==null||key.isEmpty()) return def;
-        try{
-            return  obj.getInt(key);
-        }
-        catch (JSONException e){
-            return  def;
-        }
+        return  obj.optInt(key);
     }
 
     ///<summary>从Json对象中获取指定属性的String值</summary>
     public static String GetString(JSONObject obj,String key,String def)
     {
         if(obj==null||key==null||key.isEmpty()) return def;
-        try{
-            return  obj.getString(key);
-        }
-        catch (JSONException e){
-            return  def;
-        }
+        return  obj.optString(key);
     }
 
     public static JSONObject GetJObject(JSONObject obj,String key)
     {
         if(obj==null || key==null || key.isEmpty()) return null;
-        try{
-            return  obj.getJSONObject(key);
-        }
-        catch (JSONException e){
-            return  null;
-        }
+        return  obj.optJSONObject(key);
     }
 
     public static JSONArray GetJArray(JSONObject obj,String key)
     {
         if(obj==null || key==null || key.isEmpty()) return null;
-        try{
-            return  obj.getJSONArray(key);
-        }
-        catch (JSONException e){
-            return  null;
-        }
+        return obj.optJSONArray(key);
     }
 
     public static List<JSONObject> GetJObjArray(JSONObject obj,String key)
@@ -65,13 +45,9 @@ public class JsonUtil
         List<JSONObject> lst = new ArrayList<>();
         for (int i=0;arrTemp!=null && i<arrTemp.length();i++)
         {
-            try{
-                JSONObject item = arrTemp.getJSONObject(i);
+            JSONObject item = arrTemp.optJSONObject(i);
+            if(item!=null)
                 lst.add(item);
-            }
-            catch (JSONException e){
-                continue;
-            }
         }
         return lst;
     }
