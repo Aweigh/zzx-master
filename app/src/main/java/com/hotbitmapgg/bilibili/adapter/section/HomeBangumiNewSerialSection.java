@@ -35,25 +35,31 @@ public class HomeBangumiNewSerialSection extends StatelessSection
 {
     private Context mContext;
     private List<BangumiAppIndexInfo.ResultBean.SerializingBean> newBangumiSerials;
+    private String _headTitle = "新番连载";
+    private String _moreText = "所有连载";
 
-    public HomeBangumiNewSerialSection(Context context, List<BangumiAppIndexInfo.ResultBean.SerializingBean> newBangumiSerials) {
+    public HomeBangumiNewSerialSection(Context context, List<BangumiAppIndexInfo.ResultBean.SerializingBean> newBangumiSerials)
+    {
         super(R.layout.layout_home_bangumi_new_serial_head, R.layout.layout_home_bangumi_new_serial_body);
         this.mContext = context;
         this.newBangumiSerials = newBangumiSerials;
     }
-
 
     @Override
     public int getContentItemsTotal() {
         return newBangumiSerials.size();
     }
 
-
     @Override
     public RecyclerView.ViewHolder getItemViewHolder(View view) {
         return new ItemViewHolder(view);
     }
 
+    public void setText(String title,String more)
+    {
+        _headTitle = title;
+        _moreText = more;
+    }
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -90,12 +96,18 @@ public class HomeBangumiNewSerialSection extends StatelessSection
     public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder) {
         HomeBangumiNewSerialSection.HeaderViewHolder headerViewHolder
                 = (HomeBangumiNewSerialSection.HeaderViewHolder) holder;
+
+        headerViewHolder.tv_title.setText(_headTitle);
+        headerViewHolder.mAllSerial.setText(_moreText);
         headerViewHolder.mAllSerial.setOnClickListener(v -> mContext.startActivity(
                 new Intent(mContext, NewBangumiSerialActivity.class)));
     }
 
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.tv_title)
+        TextView tv_title;
+
         @BindView(R.id.tv_all_serial)
         TextView mAllSerial;
 

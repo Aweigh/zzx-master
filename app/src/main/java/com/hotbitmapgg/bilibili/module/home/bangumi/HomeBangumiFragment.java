@@ -24,8 +24,12 @@ import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.utils.SnackbarUtil;
 import com.hotbitmapgg.bilibili.widget.CustomEmptyView;
 import com.hotbitmapgg.bilibili.widget.banner.BannerEntity;
+import com.hotbitmapgg.bilibili.widget.sectioned.Section;
 import com.hotbitmapgg.bilibili.widget.sectioned.SectionedRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.R;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,11 +58,11 @@ public class HomeBangumiFragment extends RxLazyFragment {
     private boolean mIsRefreshing = false;
     private List<BannerEntity> bannerList = new ArrayList<>();//广告轮播对象集合
     private SectionedRecyclerViewAdapter mSectionedRecyclerViewAdapter;//RecyclerView控件的适配器
-    private List<BangumiRecommendInfo.ResultBean> bangumiRecommends = new ArrayList<>();
     private List<BangumiAppIndexInfo.ResultBean.AdBean.HeadBean> banners = new ArrayList<>();
     private List<BangumiAppIndexInfo.ResultBean.AdBean.BodyBean> bangumibobys = new ArrayList<>();
-    private List<BangumiAppIndexInfo.ResultBean.PreviousBean.ListBean> seasonNewBangumis = new ArrayList<>();
-    private List<BangumiAppIndexInfo.ResultBean.SerializingBean> newBangumiSerials = new ArrayList<>();
+    private JSONObject _hotItems = null;//正在热播
+    private JSONObject _latestItems = null;//最新上映
+    private JSONObject _recommendItems = null;//热门/推荐
 
     public static HomeBangumiFragment newInstance() {
         return new HomeBangumiFragment();
@@ -123,14 +127,15 @@ public class HomeBangumiFragment extends RxLazyFragment {
         });
     }
 
-    private void clearData() {
+    private void clearData()
+    {
         mIsRefreshing = true;
         banners.clear();
         bannerList.clear();
         bangumibobys.clear();
-        bangumiRecommends.clear();
-        newBangumiSerials.clear();
-        seasonNewBangumis.clear();
+        _hotItems = null;
+        _latestItems = null;
+        _recommendItems = null;
         mSectionedRecyclerViewAdapter.removeAllSections();
     }
 
@@ -148,7 +153,10 @@ public class HomeBangumiFragment extends RxLazyFragment {
                     }
                     bannerList = BannerEntity.From(reply.GetJArray("adHead"));
                     bangumibobys = BangumiAppIndexInfo.ResultBean.AdBean.BodyBean.From(reply.GetJArray("adBody"));
-                    newBangumiSerials = BangumiAppIndexInfo.ResultBean.SerializingBean.From(reply.GetJArray("hotItems"));
+
+                    _hotItems = reply.GetJObject("hotItems");//正在热播
+                    _latestItems = reply.GetJObject("latestItems");//最新上映
+                    _recommendItems = reply.GetJObject("recommendItems");//热门/推荐
                     finishTask();
                 },throwable -> {
                     initEmptyView();
@@ -168,17 +176,52 @@ public class HomeBangumiFragment extends RxLazyFragment {
 
         mSectionedRecyclerViewAdapter.addSection(new HomeBangumiItemSection(getActivity()));
 
-        if(newBangumiSerials!=null && !newBangumiSerials.isEmpty())
-            mSectionedRecyclerViewAdapter.addSection(new HomeBangumiNewSerialSection(getActivity(), newBangumiSerials));
+        if(_hotItems!=null && _hotItems.has("list"))
+        {
+            JSONArray itemArr = _hotItems.optJSONArray("list");//hotItems.list
+            String title = JsonUtil.GetString(_hotItems,"title","正在热播");
+            String moreText = JsonUtil.GetString(_hotItems,"moreText","更多..");
+
+            List<BangumiAppIndexInfo.ResultBean.SerializingBean> objItemArr = BangumiAppIndexInfo.ResultBean.SerializingBean.From(itemArr);
+            if(objItemArr!=null && objItemArr.size()>0)
+            {
+                HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), objItemArr);
+                section.setText(title,moreText);
+                mSectionedRecyclerViewAdapter.addSection(section);
+            }
+        }
 
         if (bangumibobys!=null && !bangumibobys.isEmpty())
             mSectionedRecyclerViewAdapter.addSection(new HomeBangumiBobySection(getActivity(), bangumibobys));
 
-        if(seasonNewBangumis!=null && !seasonNewBangumis.isEmpty())
-            mSectionedRecyclerViewAdapter.addSection(new HomeBangumiSeasonNewSection(getActivity(), season, seasonNewBangumis));
+        if(_latestItems!=null && _latestItems.has("list"))
+        {
+            JSONArray itemArr = _latestItems.optJSONArray("list");//hotItems.list
+            String title = JsonUtil.GetString(_latestItems,"title","最新上映");
+            String moreText = JsonUtil.GetString(_latestItems,"moreText","更多..");
 
-        if(bangumiRecommends!=null && !bangumiRecommends.isEmpty())
-            mSectionedRecyclerViewAdapter.addSection(new HomeBangumiRecommendSection(getActivity(), bangumiRecommends));
+            List<BangumiAppIndexInfo.ResultBean.SerializingBean> objItemArr = BangumiAppIndexInfo.ResultBean.SerializingBean.From(itemArr);
+            if(objItemArr!=null && objItemArr.size()>0)
+            {
+                HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), objItemArr);
+                section.setText(title,moreText);
+                mSectionedRecyclerViewAdapter.addSection(section);
+            }
+        }
+
+        if(_recommendItems!=null && _recommendItems.has("list"))
+        {
+            JSONArray itemArr = _recommendItems.optJSONArray("list");//recommendItems.list
+            String title = JsonUtil.GetString(_recommendItems,"title","热门/推荐");
+
+            List<BangumiRecommendInfo.ResultBean> objItemArr = BangumiRecommendInfo.ResultBean.From(itemArr);
+            if(objItemArr!=null && objItemArr.size()>0)
+            {
+                HomeBangumiRecommendSection section = new HomeBangumiRecommendSection(getActivity(), objItemArr);
+                section.setText(title);
+                mSectionedRecyclerViewAdapter.addSection(section);
+            }
+        }
 
         mSectionedRecyclerViewAdapter.notifyDataSetChanged();
     }

@@ -1,5 +1,9 @@
 package com.hotbitmapgg.bilibili.entity.bangumi;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,7 +42,8 @@ public class BangumiRecommendInfo {
         this.result = result;
     }
 
-    public static class ResultBean {
+    public static class ResultBean
+    {
         private String cover;
         private long cursor;
         private String desc;
@@ -46,6 +51,33 @@ public class BangumiRecommendInfo {
         private int is_new;
         private String link;
         private String title;
+
+        public ResultBean(JSONObject o)
+        {
+            if(o==null) return;
+            cover = o.optString("cover");
+            cursor = o.optLong("cursor");
+            desc = o.optString("desc");
+            id = o.optInt("id");
+            is_new = o.optInt("is_new");
+            link = o.optString("link");
+            title = o.optString("title");
+        }
+        ///<summary>将JSONObject对象数组转为实体类数组</summary>
+        public static List<ResultBean> From(JSONArray arr)
+        {
+            if(arr==null) return null;
+
+            List<ResultBean> collection = new ArrayList<>();
+            for (int i=0;i<arr.length();i++)
+            {
+                JSONObject o = arr.optJSONObject(i);
+                if(o == null) continue;
+                ResultBean item = new ResultBean(o);
+                collection.add(item);
+            }
+            return  collection;
+        }
 
         public String getCover() {
             return cover;

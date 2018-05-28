@@ -14,26 +14,26 @@ public class JsonUtil
     ///<result></result>
     public static int GetInt(JSONObject obj, String key, int def)
     {
-        if(obj==null||key==null||key.isEmpty()) return def;
+        if(obj==null||key==null||key.isEmpty() || !obj.has(key)) return def;
         return  obj.optInt(key);
     }
 
     ///<summary>从Json对象中获取指定属性的String值</summary>
     public static String GetString(JSONObject obj,String key,String def)
     {
-        if(obj==null||key==null||key.isEmpty()) return def;
+        if(obj==null || key==null || key.isEmpty() || !obj.has(key)) return def;
         return  obj.optString(key);
     }
 
     public static JSONObject GetJObject(JSONObject obj,String key)
     {
-        if(obj==null || key==null || key.isEmpty()) return null;
+        if(obj==null || key==null || key.isEmpty() || !obj.has(key)) return null;
         return  obj.optJSONObject(key);
     }
 
     public static JSONArray GetJArray(JSONObject obj,String key)
     {
-        if(obj==null || key==null || key.isEmpty()) return null;
+        if(obj==null || key==null || key.isEmpty() || !obj.has(key)) return null;
         return obj.optJSONArray(key);
     }
 

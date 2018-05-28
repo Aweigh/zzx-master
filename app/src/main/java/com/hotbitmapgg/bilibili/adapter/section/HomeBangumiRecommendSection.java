@@ -6,6 +6,7 @@ import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.TextView;
 
 import com.hotbitmapgg.bilibili.adapter.HomeBangumiRecommendAdapter;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiRecommendInfo;
@@ -28,6 +29,7 @@ import butterknife.ButterKnife;
 public class HomeBangumiRecommendSection extends StatelessSection {
     private Context mContext;
     private List<BangumiRecommendInfo.ResultBean> bangumiRecommends;
+    private String _headTitle = "热门推荐";
 
     public HomeBangumiRecommendSection(Context context, List<BangumiRecommendInfo.ResultBean> bangumiRecommends) {
         super(R.layout.layout_home_bangumi_recommend_head, R.layout.layout_home_recommend_empty);
@@ -35,34 +37,35 @@ public class HomeBangumiRecommendSection extends StatelessSection {
         this.bangumiRecommends = bangumiRecommends;
     }
 
-
     @Override
     public int getContentItemsTotal() {
         return 1;
     }
-
 
     @Override
     public RecyclerView.ViewHolder getItemViewHolder(View view) {
         return new HomeBangumiRecommendSection.EmptyViewHolder(view);
     }
 
-
+    public void setText(String title)
+    {
+        _headTitle = title;
+    }
     @Override
     public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
     }
-
 
     @Override
     public RecyclerView.ViewHolder getHeaderViewHolder(View view) {
         return new HomeBangumiRecommendSection.RecyclerViewHolder(view);
     }
 
-
     @SuppressLint("SetTextI18n")
     @Override
-    public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder) {
+    public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder)
+    {
         HomeBangumiRecommendSection.RecyclerViewHolder recyclerViewHolder = (HomeBangumiRecommendSection.RecyclerViewHolder) holder;
+        recyclerViewHolder.tv_recommend_title.setText(_headTitle);
         recyclerViewHolder.mRecyclerView.setHasFixedSize(false);
         recyclerViewHolder.mRecyclerView.setNestedScrollingEnabled(false);
         recyclerViewHolder.mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext,
@@ -77,6 +80,9 @@ public class HomeBangumiRecommendSection extends StatelessSection {
 
 
     static class RecyclerViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.tv_recommend_title)
+        TextView tv_recommend_title;
+
         @BindView(R.id.home_bangumi_recommend_recycler)
         RecyclerView mRecyclerView;
 
