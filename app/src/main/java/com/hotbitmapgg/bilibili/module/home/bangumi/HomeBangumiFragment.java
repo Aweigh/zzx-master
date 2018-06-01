@@ -149,6 +149,7 @@ public class HomeBangumiFragment extends RxLazyFragment {
                     ServerReply reply = new ServerReply(response);
                     if(!reply.IsSucceed()){
                         Log.e(Const.LOG_TAG,"请求视频首页失败," + reply.Message());
+                        initEmptyView();
                         return;
                     }
                     bannerList = BannerEntity.From(reply.GetJArray("adHead"));
