@@ -48,7 +48,6 @@ public class SplashActivity extends RxActivity {
                 .subscribe(aLong -> finishTask());
     }
 
-
     private void finishTask() {
         boolean isLogin = PreferenceUtil.getBoolean(ConstantUtil.KEY, false);
         if (isLogin) {//如果已经登录了则进入主界面
@@ -65,10 +64,11 @@ public class SplashActivity extends RxActivity {
         bind.unbind();
     }
     /*by="Aweigh" date="2018/5/21 16:59"
-      在该页面中获取配置信息等网络数据
+      在该页面中获取配置信息等网络数据,即在动画页面中请求数据提供给首页等页面使用
     */
     private void loadData()
     {
+        Log.d(Const.LOG_TAG,"SplashActivity.loadData=>aid:" + AppContext.AccountID);
         RetrofitHelper.getZZXAPI().getConfiguration(AppContext.AccountID) .
                 compose(bindToLifecycle()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()) .
                 subscribe(response -> {

@@ -11,7 +11,7 @@ public interface ZZXService
     ///<summary>获取配置信息接口</summary>
     ///<param name="aid">账号ID</param>
     ///<result>返回Json对象</result>
-    @GET("Application/Service/Configuration?t=0")
+    @GET("Application/Service/Configuration?t=2")
     Observable<ResponseBody> getConfiguration(@Query("aid") int aid);
 
     ///<summary>视频首页接口</summary>

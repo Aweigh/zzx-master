@@ -35,7 +35,7 @@ import rx.schedulers.Schedulers;
 public class HomePagerAdapter extends FragmentPagerAdapter {
     ///<summary>
     /// 从网络获取的类目对象列表
-    /// 目录Json格式:[{"ID":xxx,"Name":"xxxx","Type":xxx},{}...]
+    /// 目录Json格式:[{"ID":xxx,"Name":"xxxx","Type":xxx,"IsDef":0},{}...]
     ///</summary>
     private List<JSONObject> _catalogArr = null;
     private Fragment[] _fragmentArr = null;
@@ -48,43 +48,19 @@ public class HomePagerAdapter extends FragmentPagerAdapter {
             _catalogArr = catalogArr;
             _fragmentArr = new Fragment[catalogArr.size()];
         }
-          /*by="Aweigh" date="2018/4/27 14:58"
-            TITLES:从资源获取顶部导航字符串数组
-            _fragmentArr:是导航栏对应的fragment数组
-          */
-        //TITLES = context.getResources().getStringArray(R.array.sections);
-        //_fragmentArr = new Fragment[TITLES.length];
     }
-
     @Override
-    public Fragment getItem(int position) {
-        if (_fragmentArr[position] == null) {
-          switch (position) {
-            case 0://直播
-              _fragmentArr[position] = HomeLiveFragment.newIntance();
-              break;
-            case 1://推荐
-              _fragmentArr[position] = HomeRecommendedFragment.newInstance();
-              break;
-            case 2://番剧
-              _fragmentArr[position] = HomeBangumiFragment.newInstance();
-              break;
-            case 3://分区
-              _fragmentArr[position] = HomeRegionFragment.newInstance();
-              break;
-            case 4://关注
-              _fragmentArr[position] = HomeAttentionFragment.newInstance();
-              break;
-            case 5://发现
-              _fragmentArr[position] = HomeDiscoverFragment.newInstance();
-              break;
-            default:
-              break;
-          }
+    public Fragment getItem(int position)
+    {
+        if(_fragmentArr == null) return null;
+
+        if(_fragmentArr[position] == null)
+        {
+            int cid = JsonUtil.GetInt(_catalogArr.get(position),"ID",0);
+            _fragmentArr[position] = HomeBangumiFragment.newInstance(cid);
         }
         return _fragmentArr[position];
     }
-
 
     @Override
     public int getCount() {
@@ -95,5 +71,16 @@ public class HomePagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         if(_catalogArr==null) return "";//TITLES[position];
         return  JsonUtil.GetString(_catalogArr.get(position),"Name","");
+    }
+    ///<summary>返回要默认显示的Fragment下标</summary>
+    public int getDefaultIndex()
+    {
+        if(_catalogArr == null||_catalogArr.size()==0) return 0;
+        for (int i=0;i<_catalogArr.size();i++)
+        {
+            JSONObject item = _catalogArr.get(i);
+            if(JsonUtil.GetInt(item,"IsDef",0) == 1) return  i;
+        }
+        return -1;
     }
 }

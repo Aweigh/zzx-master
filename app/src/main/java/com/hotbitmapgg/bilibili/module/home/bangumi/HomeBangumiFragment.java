@@ -54,7 +54,6 @@ public class HomeBangumiFragment extends RxLazyFragment {
     @BindView(R.id.empty_layout)
     CustomEmptyView mCustomEmptyView;//加载失败时用于显示错误信息和显示失败图片
 
-    private int season;
     private boolean mIsRefreshing = false;
     private List<BannerEntity> bannerList = new ArrayList<>();//广告轮播对象集合
     private SectionedRecyclerViewAdapter mSectionedRecyclerViewAdapter;//RecyclerView控件的适配器
@@ -63,9 +62,12 @@ public class HomeBangumiFragment extends RxLazyFragment {
     private JSONObject _hotItems = null;//正在热播
     private JSONObject _latestItems = null;//最新上映
     private JSONObject _recommendItems = null;//热门/推荐
+    private int _catalogID = 0;//显示的类型ID
 
-    public static HomeBangumiFragment newInstance() {
-        return new HomeBangumiFragment();
+    public static HomeBangumiFragment newInstance(int cid) {
+        HomeBangumiFragment inst = new HomeBangumiFragment();
+        inst._catalogID = cid;
+        return inst;
     }
 
     @Override
@@ -142,7 +144,8 @@ public class HomeBangumiFragment extends RxLazyFragment {
     @Override
     protected void loadData()
     {
-        RetrofitHelper.getZZXAPI().getVideoHome(1003).compose(bindToLifecycle())
+        Log.d(Const.LOG_TAG,"HomeBangumiFragment.loadData=>cid:" + _catalogID);
+        RetrofitHelper.getZZXAPI().getVideoHome(_catalogID).compose(bindToLifecycle())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(response -> {
