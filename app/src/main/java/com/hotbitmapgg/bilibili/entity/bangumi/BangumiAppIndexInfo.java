@@ -1,5 +1,6 @@
 package com.hotbitmapgg.bilibili.entity.bangumi;
 
+import com.hotbitmapgg.bilibili.network.auxiliary.ApiConstants;
 import com.hotbitmapgg.bilibili.widget.banner.BannerEntity;
 
 import org.json.JSONArray;
@@ -430,6 +431,9 @@ public class BangumiAppIndexInfo {
                 season_status = o.optInt("season_status");
                 title = o.optString("title");
                 watching_count = o.optInt("watching_count");
+
+                if(cover!=null && (cover.startsWith("/")||cover.startsWith("\\")))
+                    cover = cover.substring(1);//去除开头的'/'或'\'字符
             }
             ///<summary>将JSONObject对象数组转为实体类数组</summary>
             public static List<SerializingBean> From(JSONArray arr)
@@ -446,11 +450,19 @@ public class BangumiAppIndexInfo {
                 }
                 return  collection;
             }
-
-            public String getCover() {
+            ///<summary></summary>
+            ///<param name="isCheckAndBackWholeURL">true表示进行URL检查并返回完整的URL,false表示原样返回不做任何修改</param>
+            ///<result></result>
+            public String getCover(boolean isCheckAndBackWholeURL)
+            {
+                if(isCheckAndBackWholeURL && !cover.startsWith("http")) {
+                    if(cover.indexOf('/')>0)//这是一个相对路径
+                        return ApiConstants.ZZX_BASE_URL + "Content/product_images/" + cover;
+                    //这是一个图片文件路径
+                    return ApiConstants.ZZX_BASE_URL + cover;
+                }
                 return cover;
             }
-
             public void setCover(String cover) {
                 this.cover = cover;
             }
@@ -458,7 +470,6 @@ public class BangumiAppIndexInfo {
             public String getFavourites() {
                 return favourites;
             }
-
             public void setFavourites(String favourites) {
                 this.favourites = favourites;
             }
@@ -466,7 +477,6 @@ public class BangumiAppIndexInfo {
             public int getIs_finish() {
                 return is_finish;
             }
-
             public void setIs_finish(int is_finish) {
                 this.is_finish = is_finish;
             }
@@ -474,7 +484,6 @@ public class BangumiAppIndexInfo {
             public int getIs_started() {
                 return is_started;
             }
-
             public void setIs_started(int is_started) {
                 this.is_started = is_started;
             }
@@ -482,7 +491,6 @@ public class BangumiAppIndexInfo {
             public int getLast_time() {
                 return last_time;
             }
-
             public void setLast_time(int last_time) {
                 this.last_time = last_time;
             }
@@ -490,7 +498,6 @@ public class BangumiAppIndexInfo {
             public String getNewest_ep_index() {
                 return newest_ep_index;
             }
-
             public void setNewest_ep_index(String newest_ep_index) {
                 this.newest_ep_index = newest_ep_index;
             }
@@ -498,7 +505,6 @@ public class BangumiAppIndexInfo {
             public int getPub_time() {
                 return pub_time;
             }
-
             public void setPub_time(int pub_time) {
                 this.pub_time = pub_time;
             }
@@ -506,7 +512,6 @@ public class BangumiAppIndexInfo {
             public int getSeason_id() {
                 return season_id;
             }
-
             public void setSeason_id(int season_id) {
                 this.season_id = season_id;
             }
@@ -514,7 +519,6 @@ public class BangumiAppIndexInfo {
             public int getSeason_status() {
                 return season_status;
             }
-
             public void setSeason_status(int season_status) {
                 this.season_status = season_status;
             }
@@ -522,7 +526,6 @@ public class BangumiAppIndexInfo {
             public String getTitle() {
                 return title;
             }
-
             public void setTitle(String title) {
                 this.title = title;
             }
@@ -530,7 +533,6 @@ public class BangumiAppIndexInfo {
             public int getWatching_count() {
                 return watching_count;
             }
-
             public void setWatching_count(int watching_count) {
                 this.watching_count = watching_count;
             }

@@ -65,11 +65,11 @@ public class HomeBangumiNewSerialSection extends StatelessSection
     @Override
     public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
         ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-        BangumiAppIndexInfo.ResultBean.SerializingBean serializingBean = newBangumiSerials.get(
-                position);
+        BangumiAppIndexInfo.ResultBean.SerializingBean serializingBean = newBangumiSerials.get(position);
 
+        //从网络下载图片并加载到控件中
         Glide.with(mContext)
-                .load(serializingBean.getCover())
+                .load(serializingBean.getCover(true))
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.bili_default_image_tv)
@@ -77,19 +77,20 @@ public class HomeBangumiNewSerialSection extends StatelessSection
                 .into(itemViewHolder.mImage);
 
         itemViewHolder.mTitle.setText(serializingBean.getTitle());
-        itemViewHolder.mPlay.setText(
-                NumberUtil.converString(serializingBean.getWatching_count()) + "人在看");
-        itemViewHolder.mUpdate.setText("更新至第" + serializingBean.getNewest_ep_index() + "话");
+        if(serializingBean.getWatching_count()>=0)
+            itemViewHolder.mPlay.setText(NumberUtil.converString(serializingBean.getWatching_count()) + "人在看");
+
+        if(!serializingBean.getNewest_ep_index().isEmpty())
+            itemViewHolder.mUpdate.setText("更新至第" + serializingBean.getNewest_ep_index() + "话");
+
         itemViewHolder.mCardView.setOnClickListener(v -> BangumiDetailsActivity.launch(
                 (Activity) mContext, serializingBean.getSeason_id()));
     }
-
 
     @Override
     public RecyclerView.ViewHolder getHeaderViewHolder(View view) {
         return new HomeBangumiNewSerialSection.HeaderViewHolder(view);
     }
-
 
     @SuppressLint("SetTextI18n")
     @Override
