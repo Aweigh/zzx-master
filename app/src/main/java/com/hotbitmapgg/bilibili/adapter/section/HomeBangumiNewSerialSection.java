@@ -15,9 +15,13 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiAppIndexInfo;
 import com.hotbitmapgg.bilibili.module.home.bangumi.BangumiDetailsActivity;
 import com.hotbitmapgg.bilibili.module.home.bangumi.NewBangumiSerialActivity;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.utils.NumberUtil;
 import com.hotbitmapgg.bilibili.widget.sectioned.StatelessSection;
 import com.hotbitmapgg.ohmybilibili.R;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -25,9 +29,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by hcc on 2016/10/14 19:29
- * 100332338@qq.com
- * <p>
  * 首页番剧新番连载Section
  */
 
@@ -37,12 +38,24 @@ public class HomeBangumiNewSerialSection extends StatelessSection
     private List<BangumiAppIndexInfo.ResultBean.SerializingBean> newBangumiSerials;
     private String _headTitle = "新番连载";
     private String _moreText = "所有连载";
+    private String _newest_ep_index_format = "更新至第%d话";
+    private String _watching_count_format = "%d人在看";
 
-    public HomeBangumiNewSerialSection(Context context, List<BangumiAppIndexInfo.ResultBean.SerializingBean> newBangumiSerials)
+    public HomeBangumiNewSerialSection(Context context,JSONObject cfg)
     {
         super(R.layout.layout_home_bangumi_new_serial_head, R.layout.layout_home_bangumi_new_serial_body);
         this.mContext = context;
-        this.newBangumiSerials = newBangumiSerials;
+        if(cfg!=null)
+        {
+            //文本信息配置
+            _headTitle = JsonUtil.GetString(cfg,"title","正在热播");
+            _moreText = JsonUtil.GetString(cfg,"moreText","更多..");
+            _newest_ep_index_format = JsonUtil.GetString(cfg,"newest_ep_index_format","更新至第%d话");
+            _watching_count_format = JsonUtil.GetString(cfg,"watching_count_format","%d人在看");
+
+            JSONArray itemArr = cfg.optJSONArray("list");//hotItems.list
+            this.newBangumiSerials = BangumiAppIndexInfo.ResultBean.SerializingBean.From(itemArr);
+        }
     }
 
     @Override
@@ -53,12 +66,6 @@ public class HomeBangumiNewSerialSection extends StatelessSection
     @Override
     public RecyclerView.ViewHolder getItemViewHolder(View view) {
         return new ItemViewHolder(view);
-    }
-
-    public void setText(String title,String more)
-    {
-        _headTitle = title;
-        _moreText = more;
     }
 
     @SuppressLint("SetTextI18n")
@@ -77,11 +84,15 @@ public class HomeBangumiNewSerialSection extends StatelessSection
                 .into(itemViewHolder.mImage);
 
         itemViewHolder.mTitle.setText(serializingBean.getTitle());
-        if(serializingBean.getWatching_count()>=0)
-            itemViewHolder.mPlay.setText(NumberUtil.converString(serializingBean.getWatching_count()) + "人在看");
+        if(serializingBean.getWatching_count()>=0) {
+            String text = String.format(_watching_count_format,serializingBean.getWatching_count());
+            itemViewHolder.mPlay.setText(text);
+        }
 
-        if(!serializingBean.getNewest_ep_index().isEmpty())
-            itemViewHolder.mUpdate.setText("更新至第" + serializingBean.getNewest_ep_index() + "话");
+        if(serializingBean.getNewest_ep_index()>=0) {
+            String text = String.format(_newest_ep_index_format,serializingBean.getNewest_ep_index());
+            itemViewHolder.mUpdate.setText(text);
+        }
 
         itemViewHolder.mCardView.setOnClickListener(v -> BangumiDetailsActivity.launch(
                 (Activity) mContext, serializingBean.getSeason_id()));

@@ -1,6 +1,7 @@
 package com.hotbitmapgg.bilibili.entity.bangumi;
 
 import com.hotbitmapgg.bilibili.network.auxiliary.ApiConstants;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.widget.banner.BannerEntity;
 
 import org.json.JSONArray;
@@ -410,7 +411,7 @@ public class BangumiAppIndexInfo {
             private int is_finish;
             private int is_started;
             private int last_time;
-            private String newest_ep_index;
+            private int newest_ep_index;
             private int pub_time;
             private int season_id;
             private int season_status;
@@ -425,12 +426,12 @@ public class BangumiAppIndexInfo {
                 is_finish = o.optInt("is_finish");
                 is_started = o.optInt("is_started");
                 last_time = o.optInt("last_time");
-                newest_ep_index = o.optString("newest_ep_index");//更新至第x话
+                newest_ep_index = JsonUtil.GetInt(o,"newest_ep_index",-1);//更新至第x话
                 pub_time = o.optInt("pub_time");
                 season_id = o.optInt("season_id");
                 season_status = o.optInt("season_status");
                 title = o.optString("title");
-                watching_count = o.optInt("watching_count");
+                watching_count = JsonUtil.GetInt(o,"watching_count",-1);//x人在观看
 
                 if(cover!=null && (cover.startsWith("/")||cover.startsWith("\\")))
                     cover = cover.substring(1);//去除开头的'/'或'\'字符
@@ -455,10 +456,11 @@ public class BangumiAppIndexInfo {
             ///<result></result>
             public String getCover(boolean isCheckAndBackWholeURL)
             {
-                if(isCheckAndBackWholeURL && !cover.startsWith("http")) {
-                    if(cover.indexOf('/')>0)//这是一个相对路径
+                if(isCheckAndBackWholeURL && !cover.startsWith("http"))
+                {
+                    if(cover.indexOf('/')<=0)//这是一个图片文件路径
                         return ApiConstants.ZZX_BASE_URL + "Content/product_images/" + cover;
-                    //这是一个图片文件路径
+                    //这是一个相对路径
                     return ApiConstants.ZZX_BASE_URL + cover;
                 }
                 return cover;
@@ -470,9 +472,7 @@ public class BangumiAppIndexInfo {
             public String getFavourites() {
                 return favourites;
             }
-            public void setFavourites(String favourites) {
-                this.favourites = favourites;
-            }
+            public void setFavourites(String favourites) { this.favourites = favourites; }
 
             public int getIs_finish() {
                 return is_finish;
@@ -495,12 +495,8 @@ public class BangumiAppIndexInfo {
                 this.last_time = last_time;
             }
 
-            public String getNewest_ep_index() {
-                return newest_ep_index;
-            }
-            public void setNewest_ep_index(String newest_ep_index) {
-                this.newest_ep_index = newest_ep_index;
-            }
+            public int getNewest_ep_index() { return newest_ep_index; }
+            public void setNewest_ep_index(int index) { this.newest_ep_index = index; }
 
             public int getPub_time() {
                 return pub_time;
@@ -533,9 +529,7 @@ public class BangumiAppIndexInfo {
             public int getWatching_count() {
                 return watching_count;
             }
-            public void setWatching_count(int watching_count) {
-                this.watching_count = watching_count;
-            }
+            public void setWatching_count(int watching_count) { this.watching_count = watching_count; }
         }
     }
 }

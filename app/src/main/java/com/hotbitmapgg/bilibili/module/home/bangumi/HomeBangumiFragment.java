@@ -60,7 +60,7 @@ public class HomeBangumiFragment extends RxLazyFragment {
     private List<BangumiAppIndexInfo.ResultBean.AdBean.HeadBean> banners = new ArrayList<>();
     private List<BangumiAppIndexInfo.ResultBean.AdBean.BodyBean> bangumibobys = new ArrayList<>();
     private JSONObject _hotItems = null;//正在热播
-    private JSONObject _latestItems = null;//最新上映
+    private JSONObject _lastestItems = null;//最新上映
     private JSONObject _recommendItems = null;//热门/推荐
     private int _catalogID = 0;//显示的类型ID
 
@@ -91,7 +91,6 @@ public class HomeBangumiFragment extends RxLazyFragment {
         isPrepared = false;
     }
 
-
     @Override
     protected void initRecyclerView() {
         mSectionedRecyclerViewAdapter = new SectionedRecyclerViewAdapter();
@@ -114,7 +113,6 @@ public class HomeBangumiFragment extends RxLazyFragment {
         setRecycleNoScroll();
     }
 
-
     @Override
     protected void initRefreshLayout() {
         mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
@@ -136,7 +134,7 @@ public class HomeBangumiFragment extends RxLazyFragment {
         bannerList.clear();
         bangumibobys.clear();
         _hotItems = null;
-        _latestItems = null;
+        _lastestItems = null;
         _recommendItems = null;
         mSectionedRecyclerViewAdapter.removeAllSections();
     }
@@ -159,7 +157,7 @@ public class HomeBangumiFragment extends RxLazyFragment {
                     bangumibobys = BangumiAppIndexInfo.ResultBean.AdBean.BodyBean.From(reply.GetJArray("adBody"));
 
                     _hotItems = reply.GetJObject("hotItems");//正在热播
-                    _latestItems = reply.GetJObject("latestItems");//最新上映
+                    _lastestItems = reply.GetJObject("latestItems");//最新上映
                     _recommendItems = reply.GetJObject("recommendItems");//热门/推荐
                     finishTask();
                 },throwable -> {
@@ -167,7 +165,6 @@ public class HomeBangumiFragment extends RxLazyFragment {
                     Log.e(Const.LOG_TAG,throwable.getMessage());
                 });
     }
-
 
     @Override
     protected void finishTask() {
@@ -182,35 +179,17 @@ public class HomeBangumiFragment extends RxLazyFragment {
 
         if(_hotItems!=null && _hotItems.has("list"))
         {
-            JSONArray itemArr = _hotItems.optJSONArray("list");//hotItems.list
-            String title = JsonUtil.GetString(_hotItems,"title","正在热播");
-            String moreText = JsonUtil.GetString(_hotItems,"moreText","更多..");
-
-            List<BangumiAppIndexInfo.ResultBean.SerializingBean> objItemArr = BangumiAppIndexInfo.ResultBean.SerializingBean.From(itemArr);
-            if(objItemArr!=null && objItemArr.size()>0)
-            {
-                HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), objItemArr);
-                section.setText(title,moreText);
-                mSectionedRecyclerViewAdapter.addSection(section);
-            }
+            HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), _hotItems);
+            mSectionedRecyclerViewAdapter.addSection(section);
         }
 
         if (bangumibobys!=null && !bangumibobys.isEmpty())
             mSectionedRecyclerViewAdapter.addSection(new HomeBangumiBobySection(getActivity(), bangumibobys));
 
-        if(_latestItems!=null && _latestItems.has("list"))
+        if(_lastestItems!=null && _lastestItems.has("list"))
         {
-            JSONArray itemArr = _latestItems.optJSONArray("list");//hotItems.list
-            String title = JsonUtil.GetString(_latestItems,"title","最新上映");
-            String moreText = JsonUtil.GetString(_latestItems,"moreText","更多..");
-
-            List<BangumiAppIndexInfo.ResultBean.SerializingBean> objItemArr = BangumiAppIndexInfo.ResultBean.SerializingBean.From(itemArr);
-            if(objItemArr!=null && objItemArr.size()>0)
-            {
-                HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), objItemArr);
-                section.setText(title,moreText);
-                mSectionedRecyclerViewAdapter.addSection(section);
-            }
+            HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), _lastestItems);
+            mSectionedRecyclerViewAdapter.addSection(section);
         }
 
         if(_recommendItems!=null && _recommendItems.has("list"))
@@ -230,7 +209,6 @@ public class HomeBangumiFragment extends RxLazyFragment {
         mSectionedRecyclerViewAdapter.notifyDataSetChanged();
     }
 
-
     public void initEmptyView() {
         mSwipeRefreshLayout.setRefreshing(false);
         mCustomEmptyView.setVisibility(View.VISIBLE);
@@ -239,7 +217,6 @@ public class HomeBangumiFragment extends RxLazyFragment {
         mCustomEmptyView.setEmptyText("加载失败~(≧▽≦)~啦啦啦.");
         SnackbarUtil.showMessage(mRecyclerView, "数据加载失败,请重新加载或者检查网络是否链接");
     }
-
 
     public void hideEmptyView() {
         mCustomEmptyView.setVisibility(View.GONE);

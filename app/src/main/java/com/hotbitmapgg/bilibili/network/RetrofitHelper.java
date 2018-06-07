@@ -159,7 +159,7 @@ public class RetrofitHelper {
         @Override
         public Response intercept(Chain chain) throws IOException {
             // 有网络时 设置缓存超时时间1个小时
-            int maxAge = 60 * 60;
+            int maxAge = 10;//60 * 60; //为了测试方便,暂时修改为10s
             // 无网络时，设置超时为1天
             int maxStale = 60 * 60 * 24;
             Request request = chain.request();

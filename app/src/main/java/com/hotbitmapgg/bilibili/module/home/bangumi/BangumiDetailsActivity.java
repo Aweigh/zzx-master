@@ -11,6 +11,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,15 +29,20 @@ import com.hotbitmapgg.bilibili.adapter.BangumiDetailsSeasonsAdapter;
 import com.hotbitmapgg.bilibili.adapter.BangumiDetailsSelectionAdapter;
 import com.hotbitmapgg.bilibili.adapter.helper.HeaderViewRecyclerAdapter;
 import com.hotbitmapgg.bilibili.base.RxBaseActivity;
+import com.hotbitmapgg.bilibili.entity.AppContext;
+import com.hotbitmapgg.bilibili.entity.ServerReply;
+import com.hotbitmapgg.bilibili.entity.bangumi.BangumiAppIndexInfo;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsCommentInfo;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsInfo;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsRecommendInfo;
 import com.hotbitmapgg.bilibili.module.video.VideoDetailsActivity;
+import com.hotbitmapgg.bilibili.network.auxiliary.Const;
 import com.hotbitmapgg.bilibili.utils.ConstantUtil;
 import com.hotbitmapgg.bilibili.utils.LogUtil;
 import com.hotbitmapgg.bilibili.utils.NumberUtil;
 import com.hotbitmapgg.bilibili.utils.SystemBarHelper;
 import com.hotbitmapgg.bilibili.widget.CircleProgressView;
+import com.hotbitmapgg.bilibili.widget.banner.BannerEntity;
 import com.hotbitmapgg.ohmybilibili.R;
 import com.hotbitmapgg.bilibili.network.RetrofitHelper;
 import com.zhy.view.flowlayout.FlowLayout;
@@ -54,9 +60,6 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
- * Created by hcc on 16/8/14 17:51
- * 100332338@qq.com
- * <p/>
  * 番剧详情界面
  */
 public class BangumiDetailsActivity extends RxBaseActivity {
@@ -116,9 +119,30 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         loadData();
     }
 
-
     @Override
-    public void loadData() {
+    public void loadData(){
+        int vid = 41;//vid=41="你的名字 日语中文字幕.mp4"
+        Log.d(Const.LOG_TAG,"BangumiDetailsActivity.loadData=>vid:" + vid);
+        RetrofitHelper.getZZXAPI().getVideoDetail(41).compose(bindToLifecycle()).
+                doOnSubscribe(this::showProgressBar)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    ServerReply reply = new ServerReply(response);
+                    if(!reply.IsSucceed()){
+                        Log.e(Const.LOG_TAG,"请求视频详情失败," + reply.Message());
+                        hideProgressBar();
+                        return;
+                    }
+
+                    finishTask();
+                },throwable -> {
+                    hideProgressBar();
+                    Log.e(Const.LOG_TAG,throwable.getMessage());
+                });
+    }
+    public void loadData2()
+    {
         RetrofitHelper.getBangumiAPI()
                 .getBangumiDetails()
                 .compose(bindToLifecycle())
