@@ -178,7 +178,7 @@ public class HomeBangumiFragment extends RxLazyFragment {
         mSectionedRecyclerViewAdapter.addSection(new HomeBangumiItemSection(getActivity()));
 
         if(_hotItems!=null && _hotItems.has("list"))
-        {
+        {//构建"新番连载"或"正在热播"区域
             HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), _hotItems);
             mSectionedRecyclerViewAdapter.addSection(section);
         }
@@ -187,13 +187,13 @@ public class HomeBangumiFragment extends RxLazyFragment {
             mSectionedRecyclerViewAdapter.addSection(new HomeBangumiBobySection(getActivity(), bangumibobys));
 
         if(_lastestItems!=null && _lastestItems.has("list"))
-        {
+        {//构建"x月新番"或"最新上映"区域
             HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), _lastestItems);
             mSectionedRecyclerViewAdapter.addSection(section);
         }
 
         if(_recommendItems!=null && _recommendItems.has("list"))
-        {
+        {//构建"番剧推荐"或"热门/推荐"区域
             JSONArray itemArr = _recommendItems.optJSONArray("list");//recommendItems.list
             String title = JsonUtil.GetString(_recommendItems,"title","热门/推荐");
 

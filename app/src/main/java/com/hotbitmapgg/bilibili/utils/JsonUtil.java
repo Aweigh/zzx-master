@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+///<summary>从Json对象操作类</summary>
 public class JsonUtil
 {
     ///<summary>从Json对象中获取指定属性的Int值</summary>

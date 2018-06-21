@@ -29,9 +29,7 @@ import com.hotbitmapgg.bilibili.adapter.BangumiDetailsSeasonsAdapter;
 import com.hotbitmapgg.bilibili.adapter.BangumiDetailsSelectionAdapter;
 import com.hotbitmapgg.bilibili.adapter.helper.HeaderViewRecyclerAdapter;
 import com.hotbitmapgg.bilibili.base.RxBaseActivity;
-import com.hotbitmapgg.bilibili.entity.AppContext;
 import com.hotbitmapgg.bilibili.entity.ServerReply;
-import com.hotbitmapgg.bilibili.entity.bangumi.BangumiAppIndexInfo;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsCommentInfo;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsInfo;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsRecommendInfo;
@@ -42,7 +40,6 @@ import com.hotbitmapgg.bilibili.utils.LogUtil;
 import com.hotbitmapgg.bilibili.utils.NumberUtil;
 import com.hotbitmapgg.bilibili.utils.SystemBarHelper;
 import com.hotbitmapgg.bilibili.widget.CircleProgressView;
-import com.hotbitmapgg.bilibili.widget.banner.BannerEntity;
 import com.hotbitmapgg.ohmybilibili.R;
 import com.hotbitmapgg.bilibili.network.RetrofitHelper;
 import com.zhy.view.flowlayout.FlowLayout;
@@ -99,7 +96,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
     TextView mBangumiCommentCount;
 
     private int seasonId;
-    private BangumiDetailsInfo.ResultBean result;
+    private BangumiDetailsInfo.ResultBean _videoDetail;
     private BangumiDetailsCommentInfo.DataBean.PageBean mPageInfo;
     private List<BangumiDetailsCommentInfo.DataBean.RepliesBean> replies = new ArrayList<>();
     private List<BangumiDetailsCommentInfo.DataBean.HotsBean> hotComments = new ArrayList<>();
@@ -134,7 +131,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
                         hideProgressBar();
                         return;
                     }
-
+                    _videoDetail = new BangumiDetailsInfo.ResultBean(reply.GetJObject("video"));
                     finishTask();
                 },throwable -> {
                     hideProgressBar();
@@ -150,7 +147,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
                 .flatMap(new Func1<BangumiDetailsInfo, Observable<BangumiDetailsRecommendInfo>>() {
                     @Override
                     public Observable<BangumiDetailsRecommendInfo> call(BangumiDetailsInfo bangumiDetailsInfo) {
-                        result = bangumiDetailsInfo.getResult();
+                        _videoDetail = bangumiDetailsInfo.getResult();
                         return RetrofitHelper.getBangumiAPI().getBangumiDetailsRecommend();
                     }
                 })
@@ -183,36 +180,37 @@ public class BangumiDetailsActivity extends RxBaseActivity {
     public void finishTask() {
         //设置番剧封面
         Glide.with(this)
-                .load(result.getCover())
+                .load(_videoDetail.getCover(true))
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.bili_default_image_tv)
                 .dontAnimate()
                 .into(mBangumiPic);
+
         //设置背景高斯模糊图片
         Glide.with(this)
-                .load(result.getCover())
+                .load(_videoDetail.getCover(true))
                 .bitmapTransform(new BlurTransformation(this))
                 .into(mBangumiBackgroundImage);
         //设置番剧标题
-        mBangumiTitle.setText(result.getTitle());
+        mBangumiTitle.setText(_videoDetail.getTitle());
         //设置番剧更新状态
-        if (result.getIs_finish().equals("0")) {
-            mUpdateIndex.setText("更新至第" + result.getNewest_ep_index() + "话");
+        if (_videoDetail.getIs_finish().equals("0")) {
+            mUpdateIndex.setText("更新至第" + _videoDetail.getNewest_ep_index() + "话");
             mBangumiUpdate.setText("连载中");
         } else {
-            mUpdateIndex.setText(result.getNewest_ep_index() + "话全");
-            mBangumiUpdate.setText("已完结" + result.getNewest_ep_index() + "话全");
+            mUpdateIndex.setText(_videoDetail.getNewest_ep_index() + "话全");
+            mBangumiUpdate.setText("已完结" + _videoDetail.getNewest_ep_index() + "话全");
         }
         //设置番剧播放和追番数量
-        mBangumiPlay.setText("播放：" + NumberUtil.converString(Integer.valueOf(result.getPlay_count()))
-                + "  " + "追番：" + NumberUtil.converString(Integer.valueOf(result.getFavorites())));
+        mBangumiPlay.setText("播放：" + NumberUtil.converString(Integer.valueOf(_videoDetail.getPlay_count()))
+                + "  " + "追番：" + NumberUtil.converString(Integer.valueOf(_videoDetail.getFavorites())));
         //设置番剧简介
-        mBangumiIntroduction.setText(result.getEvaluate());
+        mBangumiIntroduction.setText(_videoDetail.getEvaluate());
         //设置评论数量
         mBangumiCommentCount.setText("评论 第1话(" + mPageInfo.getAcount() + ")");
         //设置标签布局
-        List<BangumiDetailsInfo.ResultBean.TagsBean> tags = result.getTags();
+        List<BangumiDetailsInfo.ResultBean.TagsBean> tags = _videoDetail.getTags();
         mTagsLayout.setAdapter(new TagAdapter<BangumiDetailsInfo.ResultBean.TagsBean>(tags) {
             @Override
             public View getView(FlowLayout parent, int position, BangumiDetailsInfo.ResultBean.TagsBean tagsBean) {
@@ -261,7 +259,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
      * 初始化分季版本recyclerView
      */
     private void initSeasonsRecycler() {
-        List<BangumiDetailsInfo.ResultBean.SeasonsBean> seasons = result.getSeasons();
+        List<BangumiDetailsInfo.ResultBean.SeasonsBean> seasons = _videoDetail.getSeasons();
         mBangumiSeasonsRecycler.setHasFixedSize(false);
         mBangumiSeasonsRecycler.setNestedScrollingEnabled(false);
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -269,7 +267,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         BangumiDetailsSeasonsAdapter mBangumiDetailsSeasonsAdapter = new BangumiDetailsSeasonsAdapter(mBangumiSeasonsRecycler, seasons);
         mBangumiSeasonsRecycler.setAdapter(mBangumiDetailsSeasonsAdapter);
         for (int i = 0, size = seasons.size(); i < size; i++) {
-            if (seasons.get(i).getSeason_id().equals(result.getSeason_id())) {
+            if (seasons.get(i).getSeason_id().equals(_videoDetail.getSeason_id())) {
                 mBangumiDetailsSeasonsAdapter.notifyItemForeground(i);
             }
         }
@@ -280,7 +278,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
      * 初始化选集recyclerView
      */
     private void initSelectionRecycler() {
-        List<BangumiDetailsInfo.ResultBean.EpisodesBean> episodes = result.getEpisodes();
+        List<BangumiDetailsInfo.ResultBean.EpisodesBean> episodes = _videoDetail.getEpisodes();
         mBangumiSelectionRecycler.setHasFixedSize(false);
         mBangumiSelectionRecycler.setNestedScrollingEnabled(false);
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);

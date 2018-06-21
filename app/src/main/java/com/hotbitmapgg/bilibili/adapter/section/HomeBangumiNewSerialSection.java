@@ -30,6 +30,7 @@ import butterknife.ButterKnife;
 
 /**
  * 首页番剧新番连载Section
+ * "新番连载"或"正在热播"自定义控件
  */
 
 public class HomeBangumiNewSerialSection extends StatelessSection
@@ -93,7 +94,7 @@ public class HomeBangumiNewSerialSection extends StatelessSection
             String text = String.format(_newest_ep_index_format,serializingBean.getNewest_ep_index());
             itemViewHolder.mUpdate.setText(text);
         }
-
+        //点击视频项跳转到BangumiDetailsActivity页面
         itemViewHolder.mCardView.setOnClickListener(v -> BangumiDetailsActivity.launch(
                 (Activity) mContext, serializingBean.getSeason_id()));
     }

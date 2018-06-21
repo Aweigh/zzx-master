@@ -2,6 +2,7 @@ package com.hotbitmapgg.bilibili.entity.bangumi;
 
 import com.hotbitmapgg.bilibili.network.auxiliary.ApiConstants;
 import com.hotbitmapgg.bilibili.utils.JsonUtil;
+import com.hotbitmapgg.bilibili.utils.PathUtil;
 import com.hotbitmapgg.bilibili.widget.banner.BannerEntity;
 
 import org.json.JSONArray;
@@ -451,19 +452,12 @@ public class BangumiAppIndexInfo {
                 }
                 return  collection;
             }
-            ///<summary></summary>
+            ///<summary>获取封面图片</summary>
             ///<param name="isCheckAndBackWholeURL">true表示进行URL检查并返回完整的URL,false表示原样返回不做任何修改</param>
             ///<result></result>
             public String getCover(boolean isCheckAndBackWholeURL)
             {
-                if(isCheckAndBackWholeURL && !cover.startsWith("http"))
-                {
-                    if(cover.indexOf('/')<=0)//这是一个图片文件路径
-                        return ApiConstants.ZZX_BASE_URL + "Content/product_images/" + cover;
-                    //这是一个相对路径
-                    return ApiConstants.ZZX_BASE_URL + cover;
-                }
-                return cover;
+                return PathUtil.GetZZXImageURL(cover,isCheckAndBackWholeURL);//cover;
             }
             public void setCover(String cover) {
                 this.cover = cover;

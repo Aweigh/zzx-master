@@ -1,5 +1,13 @@
 package com.hotbitmapgg.bilibili.entity.bangumi;
 
+import com.hotbitmapgg.bilibili.network.auxiliary.ApiConstants;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
+import com.hotbitmapgg.bilibili.utils.PathUtil;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +45,8 @@ public class BangumiDetailsInfo {
         this.result = result;
     }
 
-    public static class ResultBean {
+    public static class ResultBean
+    {
         private String alias;
         private String allow_bp;
         private String allow_download;
@@ -78,6 +87,49 @@ public class BangumiDetailsInfo {
         private List<SeasonsBean> seasons;
         private List<?> tag2s;
         private List<TagsBean> tags;
+
+        ///add by aweigh 20180621
+        private long _id;    //videoID
+        private String _publishDate;
+        private String _actors;
+        private String _directors;
+        private String _description;
+        private String _score;
+
+        public ResultBean(JSONObject o)
+        {
+            if(o==null) return;
+
+            _id = o.optLong("id");
+            title = o.optString("title");
+            cover = o.optString("cover");
+            _publishDate = o.optString("publishDate");
+            _actors = o.optString("actors");
+            _directors = o.optString("directors");
+            _description = o.optString("description");
+            _score = o.optString("score");
+            is_finish = Boolean.toString(o.optBoolean("is_finish"));
+            newest_ep_index = o.optString("newest_ep_index");;//更新至第x话
+            pub_time = _publishDate;//发布时间
+
+            if(cover!=null && (cover.startsWith("/")||cover.startsWith("\\")))
+                cover = cover.substring(1);//去除开头的'/'或'\'字符
+        }
+        ///<summary>将JSONObject对象数组转为实体类数组</summary>
+        public static List<ResultBean> From(JSONArray arr)
+        {
+            if(arr==null) return null;
+
+            List<ResultBean> collection = new ArrayList<>();
+            for (int i=0;i<arr.length();i++)
+            {
+                JSONObject o = arr.optJSONObject(i);
+                if(o == null) continue;
+                ResultBean item = new ResultBean(o);
+                collection.add(item);
+            }
+            return  collection;
+        }
 
         public String getAlias() {
             return alias;
@@ -158,9 +210,9 @@ public class BangumiDetailsInfo {
         public void setCopyright(String copyright) {
             this.copyright = copyright;
         }
-
-        public String getCover() {
-            return cover;
+        ///<summary>获取封面图片</summary>
+        public String getCover(boolean isCheckAndBackWholeURL) {
+            return PathUtil.GetZZXImageURL(cover,isCheckAndBackWholeURL);//cover;
         }
 
         public void setCover(String cover) {
@@ -782,5 +834,5 @@ public class BangumiDetailsInfo {
                 this.tag_name = tag_name;
             }
         }
-    }
+    }//end ResultBean
 }
