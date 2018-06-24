@@ -56,13 +56,17 @@ public class ServerReply
     {
         return JsonUtil.GetString(_inner,key,def);
     }
-    public JSONObject GetJObject(String key)
+    public JSONObject GetJObject(String key,JSONObject def)
     {
-        return JsonUtil.GetJObject(_inner,key);
+        JSONObject result = JsonUtil.GetJObject(_inner,key);
+        if(result == null && def != null) return def;
+        return result;
     }
-    public JSONArray GetJArray(String key)
+    public JSONArray GetJArray(String key,JSONArray def)
     {
-        return JsonUtil.GetJArray(_inner,key);
+        JSONArray result = JsonUtil.GetJArray(_inner,key);
+        if(result == null && def != null) return def;
+        return result;
     }
     public List<JSONObject> GetJObjArray(String key)
     {

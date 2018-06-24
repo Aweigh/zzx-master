@@ -1,7 +1,5 @@
 package com.hotbitmapgg.bilibili.entity.bangumi;
 
-import com.hotbitmapgg.bilibili.network.auxiliary.ApiConstants;
-import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.utils.PathUtil;
 
 import org.json.JSONArray;
@@ -59,14 +57,13 @@ public class BangumiDetailsInfo {
         private String copyright;
         private String cover;
         private String danmaku_count;
-        private String evaluate;
-        private String favorites;
-        private String is_finish;
+        private int favoriteCount;//追番数量
+        private boolean isFinish;//是否完结
         private String jp_title;
         private LimitInfoBean limit_info;
         private String newest_ep_id;
-        private String newest_ep_index;
-        private String play_count;
+        private String newest_ep_index;//更新至第x话
+        private int playCount;//播放数量
         private String pub_time;
         private String season_id;
         private int season_status;
@@ -89,28 +86,30 @@ public class BangumiDetailsInfo {
         private List<TagsBean> tags;
 
         ///add by aweigh 20180621
-        private long _id;    //videoID
-        private String _publishDate;
-        private String _actors;
-        private String _directors;
-        private String _description;
-        private String _score;
+        private long id;    //videoID
+        private String publishDate;//发布日期
+        private String actors;//导演
+        private String directors;//演员
+        private String description;//番剧简介
+        private String score;//评分
 
         public ResultBean(JSONObject o)
         {
             if(o==null) return;
 
-            _id = o.optLong("id");
+            id = o.optLong("id");
             title = o.optString("title");
             cover = o.optString("cover");
-            _publishDate = o.optString("publishDate");
-            _actors = o.optString("actors");
-            _directors = o.optString("directors");
-            _description = o.optString("description");
-            _score = o.optString("score");
-            is_finish = Boolean.toString(o.optBoolean("is_finish"));
-            newest_ep_index = o.optString("newest_ep_index");;//更新至第x话
-            pub_time = _publishDate;//发布时间
+            publishDate = o.optString("publishDate");
+            actors = o.optString("actors");
+            directors = o.optString("directors");
+            description = o.optString("description");
+            score = o.optString("score");
+            isFinish = o.optBoolean("isFinish");
+            newest_ep_index = o.optString("newest_ep_index");//更新至第x话
+            pub_time = publishDate;//发布时间
+            playCount = o.optInt("playCount");//播放数量
+            favoriteCount = o.optInt("favoriteCount");//追番数量
 
             if(cover!=null && (cover.startsWith("/")||cover.startsWith("\\")))
                 cover = cover.substring(1);//去除开头的'/'或'\'字符
@@ -227,28 +226,19 @@ public class BangumiDetailsInfo {
             this.danmaku_count = danmaku_count;
         }
 
-        public String getEvaluate() {
-            return evaluate;
+        public String getDescription() { return description; }
+        public void setDescription(String v) {
+            this.description = v;
         }
 
-        public void setEvaluate(String evaluate) {
-            this.evaluate = evaluate;
+        public int getfavoriteCount() { return favoriteCount; }
+        public void setfavoriteCount(int v) {
+            this.favoriteCount = v;
         }
 
-        public String getFavorites() {
-            return favorites;
-        }
-
-        public void setFavorites(String favorites) {
-            this.favorites = favorites;
-        }
-
-        public String getIs_finish() {
-            return is_finish;
-        }
-
-        public void setIs_finish(String is_finish) {
-            this.is_finish = is_finish;
+        public boolean getFinish() { return isFinish; }
+        public void setFinish(boolean v) {
+            this.isFinish = v;
         }
 
         public String getJp_title() {
@@ -283,12 +273,9 @@ public class BangumiDetailsInfo {
             this.newest_ep_index = newest_ep_index;
         }
 
-        public String getPlay_count() {
-            return play_count;
-        }
-
-        public void setPlay_count(String play_count) {
-            this.play_count = play_count;
+        public int getPlayCount() { return playCount; }
+        public void setPlayCount(int v) {
+            this.playCount = v;
         }
 
         public String getPub_time() {

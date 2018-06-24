@@ -4,7 +4,7 @@ ECLIPSE ANDROID PROJECT IMPORT SUMMARY
 Ignored Files:
 --------------
 The following files were *not* copied into the new Gradle project; you
-should evaluate whether these are still needed in your project and if
+should description whether these are still needed in your project and if
 so manually move them:
 
 From InitActivity:

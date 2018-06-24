@@ -36,6 +36,7 @@ import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsRecommendInfo;
 import com.hotbitmapgg.bilibili.module.video.VideoDetailsActivity;
 import com.hotbitmapgg.bilibili.network.auxiliary.Const;
 import com.hotbitmapgg.bilibili.utils.ConstantUtil;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.utils.LogUtil;
 import com.hotbitmapgg.bilibili.utils.NumberUtil;
 import com.hotbitmapgg.bilibili.utils.SystemBarHelper;
@@ -45,6 +46,9 @@ import com.hotbitmapgg.bilibili.network.RetrofitHelper;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,6 +105,8 @@ public class BangumiDetailsActivity extends RxBaseActivity {
     private List<BangumiDetailsCommentInfo.DataBean.RepliesBean> replies = new ArrayList<>();
     private List<BangumiDetailsCommentInfo.DataBean.HotsBean> hotComments = new ArrayList<>();
     private List<BangumiDetailsRecommendInfo.ResultBean.ListBean> bangumiRecommends = new ArrayList<>();
+    private JSONObject _videoComment = null;//视频评论
+    private JSONArray _videoTagArr = null;//视频标签
 
     @Override
     public int getLayoutId() {
@@ -131,7 +137,9 @@ public class BangumiDetailsActivity extends RxBaseActivity {
                         hideProgressBar();
                         return;
                     }
-                    _videoDetail = new BangumiDetailsInfo.ResultBean(reply.GetJObject("video"));
+                    _videoDetail = new BangumiDetailsInfo.ResultBean(reply.GetJObject("video",null));
+                    _videoComment = reply.GetJObject("comment",new JSONObject());
+                    _videoTagArr = reply.GetJArray("tagArr",new JSONArray());
                     finishTask();
                 },throwable -> {
                     hideProgressBar();
@@ -174,7 +182,6 @@ public class BangumiDetailsActivity extends RxBaseActivity {
                 });
     }
 
-
     @SuppressLint("SetTextI18n")
     @Override
     public void finishTask() {
@@ -195,7 +202,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         //设置番剧标题
         mBangumiTitle.setText(_videoDetail.getTitle());
         //设置番剧更新状态
-        if (_videoDetail.getIs_finish().equals("0")) {
+        if (!_videoDetail.getFinish()) {
             mUpdateIndex.setText("更新至第" + _videoDetail.getNewest_ep_index() + "话");
             mBangumiUpdate.setText("连载中");
         } else {
@@ -203,20 +210,24 @@ public class BangumiDetailsActivity extends RxBaseActivity {
             mBangumiUpdate.setText("已完结" + _videoDetail.getNewest_ep_index() + "话全");
         }
         //设置番剧播放和追番数量
-        mBangumiPlay.setText("播放：" + NumberUtil.converString(Integer.valueOf(_videoDetail.getPlay_count()))
-                + "  " + "追番：" + NumberUtil.converString(Integer.valueOf(_videoDetail.getFavorites())));
+        mBangumiPlay.setText(String.format("播放：%s  追番：%s",
+                NumberUtil.converString(_videoDetail.getPlayCount()),
+                NumberUtil.converString(_videoDetail.getfavoriteCount())
+                ));
         //设置番剧简介
-        mBangumiIntroduction.setText(_videoDetail.getEvaluate());
+        mBangumiIntroduction.setText(_videoDetail.getDescription());
         //设置评论数量
-        mBangumiCommentCount.setText("评论 第1话(" + mPageInfo.getAcount() + ")");
+        mBangumiCommentCount.setText("评论 第1话(" + Integer.toString(_videoComment.optInt("totoal")) + ")");
         //设置标签布局
-        List<BangumiDetailsInfo.ResultBean.TagsBean> tags = _videoDetail.getTags();
-        mTagsLayout.setAdapter(new TagAdapter<BangumiDetailsInfo.ResultBean.TagsBean>(tags) {
+        List<String> tags = new ArrayList<String>() ;//_videoDetail.getTags();
+        for (int i=0;i<_videoTagArr.length();i++)
+            tags.add(_videoTagArr.optString(i));
+        mTagsLayout.setAdapter(new TagAdapter<String>(tags) {
             @Override
-            public View getView(FlowLayout parent, int position, BangumiDetailsInfo.ResultBean.TagsBean tagsBean) {
+            public View getView(FlowLayout parent, int position, String tagsBean) {
                 TextView mTags = (TextView) LayoutInflater.from(BangumiDetailsActivity.this)
                         .inflate(R.layout.layout_tags_item, parent, false);
-                mTags.setText(tagsBean.getTag_name());
+                mTags.setText(tagsBean);
                 return mTags;
             }
         });
@@ -231,7 +242,6 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         //加载完毕隐藏进度条
         hideProgressBar();
     }
-
 
     /**
      * 初始化评论recyclerView
@@ -260,6 +270,8 @@ public class BangumiDetailsActivity extends RxBaseActivity {
      */
     private void initSeasonsRecycler() {
         List<BangumiDetailsInfo.ResultBean.SeasonsBean> seasons = _videoDetail.getSeasons();
+        if(seasons == null) return;//add by aweigh 20180624
+
         mBangumiSeasonsRecycler.setHasFixedSize(false);
         mBangumiSeasonsRecycler.setNestedScrollingEnabled(false);
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);

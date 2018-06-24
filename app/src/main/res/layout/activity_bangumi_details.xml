@@ -70,7 +70,7 @@
                             android:layout_marginStart="@dimen/default_general_margin"
                             android:layout_toEndOf="@+id/card_view"
                             android:orientation="vertical">
-
+                            <!-- 番剧标题-->
                             <TextView
                                 android:id="@+id/bangumi_title"
                                 android:layout_width="wrap_content"
@@ -79,7 +79,7 @@
                                 android:maxLines="1"
                                 android:textColor="@color/white"
                                 android:textSize="@dimen/default_medium_text_size" />
-
+                            <!-- 番剧更新状态=>  更新至第xxx话 或 已完结xxxx话全-->
                             <TextView
                                 android:id="@+id/bangumi_update"
                                 android:layout_width="wrap_content"
@@ -87,8 +87,7 @@
                                 android:layout_marginTop="@dimen/default_tiny_padding"
                                 android:textColor="@color/white"
                                 android:textSize="@dimen/default_tiny_text_size" />
-
-
+                            <!-- 番剧播放和追番数量=>  播放：xxxx万 追番：xxxx万-->
                             <TextView
                                 android:id="@+id/bangumi_play"
                                 android:layout_width="wrap_content"
@@ -273,7 +272,6 @@
                         android:layout_marginTop="@dimen/default_general_margin"
                         android:background="@color/gray_light" />
 
-
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/bangumi_details_more_layout_height"
@@ -302,9 +300,7 @@
                             android:textColor="@color/black_alpha_45"
                             android:textSize="@dimen/default_tiny_text_size" />
 
-
                     </RelativeLayout>
-
 
                     <TextView
                         android:id="@+id/bangumi_details_introduction"
@@ -356,6 +352,7 @@
                         android:layout_height="@dimen/bangumi_details_more_layout_height"
                         android:layout_marginTop="@dimen/default_tiny_padding">
 
+                        <!--评论区域标题=> 评论 第1话(xxxx) -->
                         <TextView
                             android:id="@+id/tv_bangumi_comment_count"
                             android:layout_width="wrap_content"

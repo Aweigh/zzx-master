@@ -153,12 +153,12 @@ public class HomeBangumiFragment extends RxLazyFragment {
                         initEmptyView();
                         return;
                     }
-                    bannerList = BannerEntity.From(reply.GetJArray("adHead"));
-                    bangumibobys = BangumiAppIndexInfo.ResultBean.AdBean.BodyBean.From(reply.GetJArray("adBody"));
+                    bannerList = BannerEntity.From(reply.GetJArray("adHead",null));
+                    bangumibobys = BangumiAppIndexInfo.ResultBean.AdBean.BodyBean.From(reply.GetJArray("adBody",null));
 
-                    _hotItems = reply.GetJObject("hotItems");//正在热播
-                    _lastestItems = reply.GetJObject("latestItems");//最新上映
-                    _recommendItems = reply.GetJObject("recommendItems");//热门/推荐
+                    _hotItems = reply.GetJObject("hotItems",null);//正在热播
+                    _lastestItems = reply.GetJObject("latestItems",null);//最新上映
+                    _recommendItems = reply.GetJObject("recommendItems",null);//热门/推荐
                     finishTask();
                 },throwable -> {
                     initEmptyView();
