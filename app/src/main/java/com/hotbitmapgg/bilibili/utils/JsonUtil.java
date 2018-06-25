@@ -43,7 +43,7 @@ public class JsonUtil
         JSONArray arrTemp = GetJArray(obj,key);
         if(arrTemp==null) return  null;
 
-        List<JSONObject> lst = new ArrayList<>();
+        List<JSONObject> lst = new ArrayList<JSONObject>();
         for (int i=0;arrTemp!=null && i<arrTemp.length();i++)
         {
             JSONObject item = arrTemp.optJSONObject(i);
@@ -51,5 +51,29 @@ public class JsonUtil
                 lst.add(item);
         }
         return lst;
+    }
+    public static List<JSONObject> ToJObjectList(JSONArray arr)
+    {
+        if(arr == null) return  null;
+        List<JSONObject> lst = new ArrayList<JSONObject>();
+        for (int i = 0;i<arr.length();i++)
+        {
+            JSONObject item = arr.optJSONObject(i);
+            if(item==null) continue;
+            lst.add(item);
+        }
+        return  lst;
+    }
+    public  static List<String> ToStringList(JSONArray arr)
+    {
+        if(arr == null) return  null;
+        List<String> lst = new ArrayList<String>();
+        for (int i = 0;i<arr.length();i++)
+        {
+            String item = arr.optString(i);
+            if(item==null) continue;
+            lst.add(item);
+        }
+        return  lst;
     }
 }

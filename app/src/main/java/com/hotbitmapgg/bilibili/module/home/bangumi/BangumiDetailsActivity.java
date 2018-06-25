@@ -219,9 +219,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         //设置评论数量
         mBangumiCommentCount.setText("评论 第1话(" + Integer.toString(_videoComment.optInt("totoal")) + ")");
         //设置标签布局
-        List<String> tags = new ArrayList<String>() ;//_videoDetail.getTags();
-        for (int i=0;i<_videoTagArr.length();i++)
-            tags.add(_videoTagArr.optString(i));
+        List<String> tags = JsonUtil.ToStringList(_videoTagArr);//_videoDetail.getTags();
         mTagsLayout.setAdapter(new TagAdapter<String>(tags) {
             @Override
             public View getView(FlowLayout parent, int position, String tagsBean) {
@@ -291,6 +289,8 @@ public class BangumiDetailsActivity extends RxBaseActivity {
      */
     private void initSelectionRecycler() {
         List<BangumiDetailsInfo.ResultBean.EpisodesBean> episodes = _videoDetail.getEpisodes();
+        if(episodes == null) return;
+
         mBangumiSelectionRecycler.setHasFixedSize(false);
         mBangumiSelectionRecycler.setNestedScrollingEnabled(false);
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);

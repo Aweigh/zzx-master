@@ -213,7 +213,6 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/bangumi_seasons_recycler"
                         android:layout_width="match_parent"
@@ -222,7 +221,6 @@
                         android:overScrollMode="never"
                         android:paddingBottom="@dimen/default_general_margin"
                         android:paddingTop="@dimen/default_general_margin" />
-
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -250,7 +248,6 @@
                             android:textColor="@color/black_alpha_45"
                             android:textSize="@dimen/default_tiny_text_size" />
 
-
                     </RelativeLayout>
 
 
@@ -263,8 +260,10 @@
                         android:paddingBottom="@dimen/default_general_margin"
                         android:paddingTop="@dimen/default_tiny_padding" />
 
-
+                    <!-- 请承包我吧,已有xxx人承包了这部番,xxx等xx人七日内承包了这部番 -->
+                    <!--
                     <include layout="@layout/layout_bangumi_contracted_card" />
+                    -->
 
                     <View
                         android:layout_width="match_parent"
