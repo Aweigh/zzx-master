@@ -11,24 +11,22 @@ import com.hotbitmapgg.bilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsInfo;
 import com.hotbitmapgg.ohmybilibili.R;
 
+import org.json.JSONObject;
+
 import java.util.List;
 
 /**
- * Created by hcc on 2016/10/1 17:12
- * 100332338@qq.com
- * <p>
  * 番剧选集adapter
  */
 
 public class BangumiDetailsSelectionAdapter extends AbsRecyclerViewAdapter {
     private int layoutPosition = 0;
-    private List<BangumiDetailsInfo.ResultBean.EpisodesBean> episodes;
+    private List<JSONObject> _resourceArr = null;
 
-    public BangumiDetailsSelectionAdapter(RecyclerView recyclerView, List<BangumiDetailsInfo.ResultBean.EpisodesBean> episodes) {
+    public BangumiDetailsSelectionAdapter(RecyclerView recyclerView, List<JSONObject> resArr) {
         super(recyclerView);
-        this.episodes = episodes;
+        this._resourceArr = resArr;
     }
-
 
     @Override
     public ClickableViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -37,14 +35,17 @@ public class BangumiDetailsSelectionAdapter extends AbsRecyclerViewAdapter {
                 LayoutInflater.from(getContext()).inflate(R.layout.item_bangumi_selection, parent, false));
     }
 
-
     @Override
     public void onBindViewHolder(ClickableViewHolder holder, int position) {
         if (holder instanceof ItemViewHolder) {
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-            BangumiDetailsInfo.ResultBean.EpisodesBean episodesBean = episodes.get(position);
-            itemViewHolder.mIndex.setText("第 " + episodesBean.getIndex() + " 话");
-            itemViewHolder.mTitle.setText(episodesBean.getIndex_title());
+
+            if(_resourceArr!=null && _resourceArr.size()>=position)
+            {
+                JSONObject item = _resourceArr.get(position);
+                itemViewHolder.mIndex.setText(item.optString("name"));
+                itemViewHolder.mTitle.setText(item.optString("title"));
+            }
 
             if (position == layoutPosition) {
                 itemViewHolder.mCardView.setForeground(
@@ -71,12 +72,10 @@ public class BangumiDetailsSelectionAdapter extends AbsRecyclerViewAdapter {
         notifyDataSetChanged();
     }
 
-
     @Override
     public int getItemCount() {
-        return episodes.size();
+        return _resourceArr == null? 0: _resourceArr.size();
     }
-
 
     public class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder {
 

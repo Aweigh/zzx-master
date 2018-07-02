@@ -9,26 +9,26 @@ import android.widget.TextView;
 
 import com.hotbitmapgg.bilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsInfo;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.ohmybilibili.R;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.List;
 
 /**
- * Created by hcc on 2016/11/1 20:34
- * 100332338@qq.com
- * <p>
  * 番剧详情分季版本adapter
  */
 
 public class BangumiDetailsSeasonsAdapter extends AbsRecyclerViewAdapter {
     private int layoutPosition = 0;
-    private List<BangumiDetailsInfo.ResultBean.SeasonsBean> seasons;
+    private List<JSONObject> _seasonVerArr;
 
-    public BangumiDetailsSeasonsAdapter(RecyclerView recyclerView, List<BangumiDetailsInfo.ResultBean.SeasonsBean> seasons) {
+    public BangumiDetailsSeasonsAdapter(RecyclerView recyclerView, List<JSONObject> seasonVerArr) {
         super(recyclerView);
-        this.seasons = seasons;
+        this._seasonVerArr = seasonVerArr;
     }
-
 
     @Override
     public ClickableViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -37,13 +37,16 @@ public class BangumiDetailsSeasonsAdapter extends AbsRecyclerViewAdapter {
                 .inflate(R.layout.item_bangumi_details_seasons, parent, false));
     }
 
-
     @Override
     public void onBindViewHolder(ClickableViewHolder holder, int position) {
         if (holder instanceof ItemViewHolder) {
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-            BangumiDetailsInfo.ResultBean.SeasonsBean seasonsBean = seasons.get(position);
-            itemViewHolder.mSeasons.setText(seasonsBean.getTitle());
+
+            if(_seasonVerArr!=null && _seasonVerArr.size()>position)
+            {
+                String name = _seasonVerArr.get(position).optString("name");
+                itemViewHolder.mSeasons.setText(name);
+            }
 
             if (position == layoutPosition) {
                 itemViewHolder.mCardView.setForeground(
@@ -60,18 +63,15 @@ public class BangumiDetailsSeasonsAdapter extends AbsRecyclerViewAdapter {
         super.onBindViewHolder(holder, position);
     }
 
-
     public void notifyItemForeground(int clickPosition) {
         layoutPosition = clickPosition;
         notifyDataSetChanged();
     }
 
-
     @Override
     public int getItemCount() {
-        return seasons.size();
+        return _seasonVerArr == null ? 0 : _seasonVerArr.size();
     }
-
 
     private class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder {
 

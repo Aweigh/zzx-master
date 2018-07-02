@@ -91,7 +91,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
     @BindView(R.id.tv_update_index)
     TextView mUpdateIndex;
     @BindView(R.id.bangumi_seasons_recycler)
-    RecyclerView mBangumiSeasonsRecycler;
+    RecyclerView mBangumiSeasonsRecycler;//分季版本控件
     @BindView(R.id.bangumi_comment_recycler)
     RecyclerView mBangumiCommentRecycler;
     @BindView(R.id.bangumi_recommend_recycler)
@@ -107,6 +107,8 @@ public class BangumiDetailsActivity extends RxBaseActivity {
     private List<BangumiDetailsRecommendInfo.ResultBean.ListBean> bangumiRecommends = new ArrayList<>();
     private JSONObject _videoComment = null;//视频评论
     private JSONArray _videoTagArr = null;//视频标签
+    private List<JSONObject> _videoSeasonVerArr = null;//分季版本集合
+    private List<JSONObject> _videoResourceArr = null;//资源集合
 
     @Override
     public int getLayoutId() {
@@ -140,6 +142,8 @@ public class BangumiDetailsActivity extends RxBaseActivity {
                     _videoDetail = new BangumiDetailsInfo.ResultBean(reply.GetJObject("video",null));
                     _videoComment = reply.GetJObject("comment",new JSONObject());
                     _videoTagArr = reply.GetJArray("tagArr",new JSONArray());
+                    _videoSeasonVerArr = reply.GetJObjArray("seasonVerArr");
+                    _videoResourceArr = reply.GetJObjArray("resArr");
                     finishTask();
                 },throwable -> {
                     hideProgressBar();
@@ -262,44 +266,44 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         mBangumiCommentRecycler.setAdapter(mHeaderViewRecyclerAdapter);
     }
 
-
     /**
      * 初始化分季版本recyclerView
      */
-    private void initSeasonsRecycler() {
-        List<BangumiDetailsInfo.ResultBean.SeasonsBean> seasons = _videoDetail.getSeasons();
-        if(seasons == null) return;//add by aweigh 20180624
+    private void initSeasonsRecycler()
+    {
+        if(_videoSeasonVerArr == null||_videoSeasonVerArr.size()<=0)
+            return;
 
         mBangumiSeasonsRecycler.setHasFixedSize(false);
         mBangumiSeasonsRecycler.setNestedScrollingEnabled(false);
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mBangumiSeasonsRecycler.setLayoutManager(mLinearLayoutManager);
-        BangumiDetailsSeasonsAdapter mBangumiDetailsSeasonsAdapter = new BangumiDetailsSeasonsAdapter(mBangumiSeasonsRecycler, seasons);
+        BangumiDetailsSeasonsAdapter mBangumiDetailsSeasonsAdapter = new BangumiDetailsSeasonsAdapter(mBangumiSeasonsRecycler, _videoSeasonVerArr);
         mBangumiSeasonsRecycler.setAdapter(mBangumiDetailsSeasonsAdapter);
-        for (int i = 0, size = seasons.size(); i < size; i++) {
-            if (seasons.get(i).getSeason_id().equals(_videoDetail.getSeason_id())) {
-                mBangumiDetailsSeasonsAdapter.notifyItemForeground(i);
-            }
-        }
+//        for (int i = 0, size = _videoSeasonVerArr.size(); i < size; i++)
+//        {
+//            if (_videoSeasonVerArr.get(i).optInt("id").equals(_videoDetail.getSeason_id())) {
+//                mBangumiDetailsSeasonsAdapter.notifyItemForeground(i);
+//            }
+//        }
     }
-
 
     /**
      * 初始化选集recyclerView
      */
     private void initSelectionRecycler() {
-        List<BangumiDetailsInfo.ResultBean.EpisodesBean> episodes = _videoDetail.getEpisodes();
-        if(episodes == null) return;
+        if(_videoResourceArr == null||_videoResourceArr.size()<=0)
+            return;
 
         mBangumiSelectionRecycler.setHasFixedSize(false);
         mBangumiSelectionRecycler.setNestedScrollingEnabled(false);
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mLinearLayoutManager.setReverseLayout(true);
         mBangumiSelectionRecycler.setLayoutManager(mLinearLayoutManager);
-        BangumiDetailsSelectionAdapter mBangumiDetailsSelectionAdapter = new BangumiDetailsSelectionAdapter(mBangumiSelectionRecycler, episodes);
+        BangumiDetailsSelectionAdapter mBangumiDetailsSelectionAdapter = new BangumiDetailsSelectionAdapter(mBangumiSelectionRecycler, _videoResourceArr);
         mBangumiSelectionRecycler.setAdapter(mBangumiDetailsSelectionAdapter);
-        mBangumiDetailsSelectionAdapter.notifyItemForeground(episodes.size() - 1);
-        mBangumiSelectionRecycler.scrollToPosition(episodes.size() - 1);
+        mBangumiDetailsSelectionAdapter.notifyItemForeground(_videoResourceArr.size() - 1);
+        mBangumiSelectionRecycler.scrollToPosition(_videoResourceArr.size() - 1);
         mBangumiDetailsSelectionAdapter.setOnItemClickListener((position, holder) -> {
             mBangumiDetailsSelectionAdapter.notifyItemForeground(holder.getLayoutPosition());
             VideoDetailsActivity.launch(BangumiDetailsActivity.this,

@@ -46,9 +46,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
- * Created by hcc on 16/8/4 21:18
- * 100332338@qq.com
- * <p/>
  * 视频详情界面
  */
 public class VideoDetailsActivity extends RxBaseActivity {
@@ -85,7 +82,7 @@ public class VideoDetailsActivity extends RxBaseActivity {
     @Override
     public void initViews(Bundle savedInstanceState) {
         Intent intent = getIntent();
-        if (intent != null) {
+        if (intent != null) {//获取从前一个Activity传递过来的参数
             av = intent.getIntExtra(ConstantUtil.EXTRA_AV, -1);
             imgUrl = intent.getStringExtra(ConstantUtil.EXTRA_IMG_URL);
         }
@@ -167,10 +164,10 @@ public class VideoDetailsActivity extends RxBaseActivity {
         }
     }
 
-    public static void launch(Activity activity, int aid, String imgUrl) {
+    public static void launch(Activity activity, int vid, String imgUrl) {
         Intent intent = new Intent(activity, VideoDetailsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(ConstantUtil.EXTRA_AV, aid);
+        intent.putExtra(ConstantUtil.EXTRA_AV, vid);
         intent.putExtra(ConstantUtil.EXTRA_IMG_URL, imgUrl);
         activity.startActivity(intent);
     }

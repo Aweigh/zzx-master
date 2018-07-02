@@ -23,19 +23,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <!-- 背景高斯模糊图片 -->
                 <ImageView
                     android:id="@+id/bangumi_bg"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/bangumi_details_image_height"
                     android:scaleType="centerCrop" />
 
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/bangumi_details_top_layout_margin"
                     android:orientation="vertical">
-
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -50,7 +49,7 @@
                             app:cardBackgroundColor="@color/card_view_background"
                             app:cardCornerRadius="@dimen/card_corner_radius"
                             app:cardElevation="@dimen/card_elevation">
-
+                            <!-- 视频封面图片 -->
                             <ImageView
                                 android:id="@+id/bangumi_pic"
                                 android:layout_width="match_parent"
@@ -212,7 +211,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
-
+                    <!-- 分季版本区域,"第一季,第二季,..." -->
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/bangumi_seasons_recycler"
                         android:layout_width="match_parent"
@@ -236,7 +235,7 @@
                             android:textColor="@color/font_normal"
                             android:textSize="@dimen/default_small_text_size" />
 
-
+                        <!-- 更新至第xxx话 or xxx话全-->
                         <TextView
                             android:id="@+id/tv_update_index"
                             android:layout_width="wrap_content"
@@ -250,7 +249,7 @@
 
                     </RelativeLayout>
 
-
+                    <!-- 选集区域:第1话 第2话 ... -->
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/bangumi_selection_recycler"
                         android:layout_width="match_parent"
