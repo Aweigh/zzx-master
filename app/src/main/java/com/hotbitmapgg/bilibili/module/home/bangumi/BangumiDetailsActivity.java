@@ -105,7 +105,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
     private List<BangumiDetailsCommentInfo.DataBean.RepliesBean> replies = new ArrayList<>();
     private List<BangumiDetailsCommentInfo.DataBean.HotsBean> hotComments = new ArrayList<>();
     private List<BangumiDetailsRecommendInfo.ResultBean.ListBean> bangumiRecommends = new ArrayList<>();
-    private JSONObject _videoComment = null;//视频评论
+    private JSONObject _videoComments = null;//视频评论
     private JSONArray _videoTagArr = null;//视频标签
     private List<JSONObject> _videoSeasonVerArr = null;//分季版本集合
     private List<JSONObject> _videoResourceArr = null;//资源集合
@@ -140,7 +140,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
                         return;
                     }
                     _videoDetail = new BangumiDetailsInfo.ResultBean(reply.GetJObject("video",null));
-                    _videoComment = reply.GetJObject("comment",new JSONObject());
+                    _videoComments = reply.GetJObject("comments",new JSONObject());
                     _videoTagArr = reply.GetJArray("tagArr",new JSONArray());
                     _videoSeasonVerArr = reply.GetJObjArray("seasonVerArr");
                     _videoResourceArr = reply.GetJObjArray("resArr");
@@ -221,7 +221,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         //设置番剧简介
         mBangumiIntroduction.setText(_videoDetail.getDescription());
         //设置评论数量
-        mBangumiCommentCount.setText("评论 第1话(" + Integer.toString(_videoComment.optInt("totoal")) + ")");
+        mBangumiCommentCount.setText("评论 第1话(" + JsonUtil.GetInt(_videoComments,"totoal",0) + ")");
         //设置标签布局
         List<String> tags = JsonUtil.ToStringList(_videoTagArr);//_videoDetail.getTags();
         mTagsLayout.setAdapter(new TagAdapter<String>(tags) {
@@ -305,12 +305,15 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         mBangumiDetailsSelectionAdapter.notifyItemForeground(_videoResourceArr.size() - 1);
         mBangumiSelectionRecycler.scrollToPosition(_videoResourceArr.size() - 1);
         mBangumiDetailsSelectionAdapter.setOnItemClickListener((position, holder) -> {
+            JSONObject videoRes = _videoResourceArr.get(position);
             mBangumiDetailsSelectionAdapter.notifyItemForeground(holder.getLayoutPosition());
-            VideoDetailsActivity.launch(BangumiDetailsActivity.this,
-                    Integer.valueOf(episodes.get(position).getAv_id()), episodes.get(position).getCover());
+
+            Intent intent = new Intent(this, VideoDetailsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("params", videoRes.toString());
+            this.startActivity(intent);
         });
     }
-
 
     /**
      * 初始化番剧推荐recyclerView
@@ -322,7 +325,6 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         BangumiDetailsRecommendAdapter mBangumiDetailsRecommendAdapter = new BangumiDetailsRecommendAdapter(mBangumiRecommendRecycler, bangumiRecommends);
         mBangumiRecommendRecycler.setAdapter(mBangumiDetailsRecommendAdapter);
     }
-
 
     @Override
     public void initToolBar() {

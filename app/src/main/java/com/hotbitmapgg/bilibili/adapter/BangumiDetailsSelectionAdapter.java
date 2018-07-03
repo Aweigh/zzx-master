@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.hotbitmapgg.bilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsInfo;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.ohmybilibili.R;
 
 import org.json.JSONObject;
@@ -43,8 +44,10 @@ public class BangumiDetailsSelectionAdapter extends AbsRecyclerViewAdapter {
             if(_resourceArr!=null && _resourceArr.size()>=position)
             {
                 JSONObject item = _resourceArr.get(position);
-                itemViewHolder.mIndex.setText(item.optString("name"));
-                itemViewHolder.mTitle.setText(item.optString("title"));
+                if(item.has("name"))
+                    itemViewHolder.mIndex.setText(item.optString("name"));
+                if(item.has("title"))
+                    itemViewHolder.mTitle.setText(item.optString("title"));
             }
 
             if (position == layoutPosition) {

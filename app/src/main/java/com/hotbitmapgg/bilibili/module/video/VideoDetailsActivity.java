@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,14 +30,20 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.flyco.tablayout.SlidingTabLayout;
 import com.hotbitmapgg.bilibili.base.RxBaseActivity;
+import com.hotbitmapgg.bilibili.entity.AppContext;
+import com.hotbitmapgg.bilibili.entity.ServerReply;
 import com.hotbitmapgg.bilibili.event.AppBarStateChangeEvent;
-import com.hotbitmapgg.bilibili.network.auxiliary.UrlHelper;
+import com.hotbitmapgg.bilibili.network.auxiliary.Const;
 import com.hotbitmapgg.bilibili.utils.ConstantUtil;
 import com.hotbitmapgg.bilibili.utils.DisplayUtil;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
+import com.hotbitmapgg.bilibili.utils.PathUtil;
 import com.hotbitmapgg.bilibili.utils.SystemBarHelper;
 import com.hotbitmapgg.ohmybilibili.R;
 import com.hotbitmapgg.bilibili.entity.video.VideoDetailsInfo;
 import com.hotbitmapgg.bilibili.network.RetrofitHelper;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +67,7 @@ public class VideoDetailsActivity extends RxBaseActivity {
     @BindView(R.id.view_pager)
     ViewPager mViewPager;
     @BindView(R.id.fab)
-    FloatingActionButton mFAB;
+    FloatingActionButton mFAB;//开始播放按钮
     @BindView(R.id.app_bar_layout)
     AppBarLayout mAppBarLayout;
     @BindView(R.id.tv_player)
@@ -68,11 +75,12 @@ public class VideoDetailsActivity extends RxBaseActivity {
     @BindView(R.id.tv_av)
     TextView mAvText;
 
-    private int av;
-    private String imgUrl;
+    private int _id = 0;
     private VideoDetailsInfo.DataBean mVideoDetailsInfo;
     private List<String> titles = new ArrayList<>();
     private List<Fragment> fragments = new ArrayList<>();
+    JSONObject _resource = null;
+    JSONObject _resComments = null;
 
     @Override
     public int getLayoutId() {
@@ -82,18 +90,24 @@ public class VideoDetailsActivity extends RxBaseActivity {
     @Override
     public void initViews(Bundle savedInstanceState) {
         Intent intent = getIntent();
-        if (intent != null) {//获取从前一个Activity传递过来的参数
-            av = intent.getIntExtra(ConstantUtil.EXTRA_AV, -1);
-            imgUrl = intent.getStringExtra(ConstantUtil.EXTRA_IMG_URL);
+        if (intent != null)
+        {//获取从前一个Activity传递过来的参数
+            String params = intent.getStringExtra("params");
+            _resource = JsonUtil.Parse(params,new JSONObject());
+            _id = _resource.optInt("id");
+            String imgUrl = _resource.optString("cover");
+            if(!TextUtils.isEmpty(imgUrl))
+            {
+                Glide.with(VideoDetailsActivity.this)
+                        .load(PathUtil.GetZZXImageURL(imgUrl,true))
+                        .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.drawable.bili_default_image_tv)
+                        .dontAnimate()
+                        .into(mVideoPreview);
+            }
         }
-        Glide.with(VideoDetailsActivity.this)
-                .load(UrlHelper.getClearVideoPreviewUrl(imgUrl))
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(R.drawable.bili_default_image_tv)
-                .dontAnimate()
-                .into(mVideoPreview);
-        loadData();
+        loadData();//从网络获取数据
         mFAB.setClickable(false);
         mFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.gray_20)));
         mFAB.setTranslationY(-getResources().getDimension(R.dimen.floating_action_button_size_half));
@@ -121,11 +135,10 @@ public class VideoDetailsActivity extends RxBaseActivity {
         });
     }
 
-
     @SuppressLint("SetTextI18n")
     @Override
     public void initToolBar() {
-        mToolbar.setTitle("");
+        mToolbar.setTitle("");//工具栏标题设置为空,AWEIGH:好像设置了也看不到
         setSupportActionBar(mToolbar);
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
@@ -138,7 +151,10 @@ public class VideoDetailsActivity extends RxBaseActivity {
         //设置StatusBar透明
         SystemBarHelper.immersiveStatusBar(this);
         SystemBarHelper.setHeightAndPadding(this, mToolbar);
-        mAvText.setText("av" + av);
+
+        String name = JsonUtil.GetDefStrIfEmpty(_resource,"name","");
+        String title = JsonUtil.GetDefStrIfEmpty(_resource,"title","");
+        mAvText.setText((name + " " + title).trim());
     }
 
     @Override
@@ -188,18 +204,26 @@ public class VideoDetailsActivity extends RxBaseActivity {
 
     @Override
     public void loadData() {
-        RetrofitHelper.getBiliAppAPI()
-                .getVideoDetails(av)
+        RetrofitHelper.getZZXAPI()
+                .getResourceDetail(_id,AppContext.AccountID)
                 .compose(this.bindToLifecycle())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(videoDetails -> {
-                    mVideoDetailsInfo = videoDetails.getData();
+                .subscribe(response -> {
+                    ServerReply reply = new ServerReply(response);
+                    if(!reply.IsSucceed()){
+                        Log.e(Const.LOG_TAG,"请求资源详情失败," + reply.Message());
+                        mFAB.setClickable(false);//disabled 播放按钮
+                        mFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.gray_20)));
+                        return;
+                    }
+                    JSONObject resTemp = reply.GetJObject("resource",null);
+                    JsonUtil.Combine(_resource,resTemp);//将旧对象与新请求到的数据对象合并,即更新当前json对象
+                    _resComments = reply.GetJObject("comments",new JSONObject());
                     finishTask();
                 }, throwable -> {
-                    mFAB.setClickable(false);
-                    mFAB.setBackgroundTintList(ColorStateList.valueOf(
-                            getResources().getColor(R.color.gray_20)));
+                    mFAB.setClickable(false);//disabled 播放按钮
+                    mFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.gray_20)));
                 });
     }
 
@@ -207,28 +231,19 @@ public class VideoDetailsActivity extends RxBaseActivity {
     @Override
     public void finishTask() {
         mFAB.setClickable(true);
-        mFAB.setBackgroundTintList(
-                ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
+        mFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
         mCollapsingToolbarLayout.setTitle("");
-        if (TextUtils.isEmpty(imgUrl)) {
-            Glide.with(VideoDetailsActivity.this)
-                    .load(mVideoDetailsInfo)
-                    .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(R.drawable.bili_default_image_tv)
-                    .dontAnimate()
-                    .into(mVideoPreview);
-        }
-        VideoIntroductionFragment mVideoIntroductionFragment = VideoIntroductionFragment.newInstance(av);
-        VideoCommentFragment mVideoCommentFragment = VideoCommentFragment.newInstance(av);
-        fragments.add(mVideoIntroductionFragment);
-        fragments.add(mVideoCommentFragment);
-        setPagerTitle(String.valueOf(mVideoDetailsInfo.getStat().getReply()));
+        //设置和声明两个Fragment:简介和评论(xxxx)
+        VideoIntroductionFragment mVideoIntroductionFragment = VideoIntroductionFragment.newInstance(_id,_resource);
+        VideoCommentFragment mVideoCommentFragment = VideoCommentFragment.newInstance(_id);
+        fragments.add(mVideoIntroductionFragment);//添加简介区域
+        fragments.add(mVideoCommentFragment);//添加评论区域
+        setPagerTitle();
     }
 
-    private void setPagerTitle(String num) {
+    private void setPagerTitle() {
         titles.add("简介");
-        titles.add("评论" + "(" + num + ")");
+        titles.add("评论" + "(" + JsonUtil.GetInt(_resComments,"totoal",0) + ")");
         VideoDetailsPagerAdapter mAdapter = new VideoDetailsPagerAdapter(getSupportFragmentManager(), fragments, titles);
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOffscreenPageLimit(2);
@@ -257,7 +272,6 @@ public class VideoDetailsActivity extends RxBaseActivity {
         float textWidth = paint.measureText(title);
         mSlidingTabLayout.setIndicatorWidth(textWidth / 3);
     }
-
 
     public static class VideoDetailsPagerAdapter extends FragmentStatePagerAdapter {
         private List<Fragment> fragments;

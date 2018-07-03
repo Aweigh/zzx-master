@@ -3,6 +3,7 @@ package com.hotbitmapgg.bilibili;
 import android.app.Application;
 
 import com.facebook.stetho.Stetho;
+import com.hotbitmapgg.bilibili.entity.AppContext;
 import com.squareup.leakcanary.LeakCanary;
 
 /**
@@ -20,6 +21,8 @@ public class BilibiliApp extends Application {
         super.onCreate();
         mInstance = this;
         init();
+        //
+        AppContext.InternalTest();
     }
 
     private void init() {

@@ -25,4 +25,11 @@ public interface ZZXService
     ///<result>返回Json对象</result>
     @GET("Application/Service/GetVideoDetail?t=2")
     Observable<ResponseBody> getVideoDetail(@Query("vid") int vid);
+
+    ///<summary>资源详细信息接口</summary>
+    ///<param name="rid">资源ID</param>
+    ///<param name="aid">账号ID</param>
+    ///<result>返回Json对象</result>
+    @GET("Application/Service/GetResourceDetail?t=2")
+    Observable<ResponseBody> getResourceDetail(@Query("rid") int rid,@Query("aid") int aid);
 }

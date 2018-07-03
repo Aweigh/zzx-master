@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:overScrollMode="never">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -44,7 +43,7 @@
                 android:layout_height="@dimen/video_info_mini_icons_size"
                 android:src="@drawable/ic_info_views"
                 android:tint="@color/black_alpha_45" />
-
+            <!-- 视频播放数量 -->
             <TextView
                 android:id="@+id/tv_play_time"
                 android:layout_width="wrap_content"
@@ -62,7 +61,7 @@
                 android:layout_height="@dimen/video_info_mini_icons_size"
                 android:src="@drawable/ic_info_danmakus"
                 android:tint="@color/black_alpha_45" />
-
+            <!-- 视频弹幕数量 -->
             <TextView
                 android:id="@+id/tv_review_count"
                 android:layout_width="wrap_content"
@@ -76,7 +75,7 @@
         <Space
             android:layout_width="match_parent"
             android:layout_height="8dp" />
-
+        <!-- Up主信息 -->
         <TextView
             android:id="@+id/tv_description"
             android:layout_width="match_parent"
@@ -102,7 +101,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
-
+                <!-- 分享数量 -->
                 <TextView
                     android:id="@+id/share_num"
                     android:layout_width="wrap_content"
@@ -125,9 +124,7 @@
                     android:textColor="@color/font_normal"
                     android:textSize="@dimen/default_tiny_text_size" />
 
-
             </LinearLayout>
-
 
             <LinearLayout
                 android:id="@+id/btn_coin"
@@ -136,7 +133,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
-
+                <!-- 投币数量 -->
                 <TextView
                     android:id="@+id/coin_num"
                     android:layout_width="wrap_content"
@@ -169,7 +166,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
-
+                <!-- 收藏数量 -->
                 <TextView
                     android:id="@+id/fav_num"
                     android:layout_width="wrap_content"
@@ -236,14 +233,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/default_general_margin">
-
+            <!-- 用户头像和名称 -->
             <com.hotbitmapgg.bilibili.widget.UserTagView
                 android:id="@+id/author_tag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerInParent="true" />
-
+            <!-- +关注 AW:看起来像按钮，其实不是 -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -261,8 +258,8 @@
             android:layout_height="@dimen/line_height"
             android:background="@color/gray_light" />
 
+        <!-- 请赐予我电量吧，充电，更多电量更多灵感 -->
         <include layout="@layout/layout_user_chase_bangumi_head" />
-
 
         <View
             android:layout_width="match_parent"
@@ -272,7 +269,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
 
             <TextView
                 android:layout_width="wrap_content"
@@ -292,9 +288,7 @@
                 android:textColor="@color/black_alpha_45"
                 android:textSize="@dimen/default_tiny_text_size" />
 
-
         </RelativeLayout>
-
 
         <com.zhy.view.flowlayout.TagFlowLayout
             android:id="@+id/tags_layout"
@@ -314,7 +308,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -325,7 +318,6 @@
 
         </RelativeLayout>
 
-
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycle"
             android:layout_width="match_parent"
@@ -333,7 +325,6 @@
             android:clipToPadding="false"
             android:overScrollMode="never"
             android:scrollbars="none" />
-
 
     </LinearLayout>
 

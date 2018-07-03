@@ -33,21 +33,20 @@
                     android:fitsSystemWindows="true"
                     android:gravity="center">
 
+                    <!-- 视频资源封面图片 -->
                     <ImageView
                         android:id="@+id/video_preview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="center" />
-
+                    <!-- 没有图片时的渐变背景 -->
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/head_image_bg_height"
                         android:layout_gravity="top"
                         android:background="@drawable/shadow_gradient" />
 
-
                 </FrameLayout>
-
 
                 <android.support.v7.widget.Toolbar
                     android:id="@+id/toolbar"
@@ -58,6 +57,7 @@
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                     app:titleTextAppearance="@style/ToolBar.TitleText">
 
+                    <!-- 页面标题, "av6748064" -->
                     <TextView
                         android:id="@+id/tv_av"
                         android:layout_width="wrap_content"
@@ -104,7 +104,7 @@
 
         </android.support.design.widget.AppBarLayout>
 
-
+        <!-- 子页面容器:简介Fragment和评论(1156)Fragment -->
         <android.support.v4.view.ViewPager
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
@@ -115,7 +115,7 @@
 
     </android.support.design.widget.CoordinatorLayout>
 
-
+    <!-- 开始播放按钮 -->
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"

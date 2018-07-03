@@ -14,12 +14,15 @@ import com.hotbitmapgg.bilibili.base.RxLazyFragment;
 import com.hotbitmapgg.bilibili.entity.video.VideoDetailsInfo;
 import com.hotbitmapgg.bilibili.network.RetrofitHelper;
 import com.hotbitmapgg.bilibili.utils.ConstantUtil;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.utils.NumberUtil;
 import com.hotbitmapgg.bilibili.widget.UserTagView;
 import com.hotbitmapgg.ohmybilibili.R;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
+
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -28,29 +31,26 @@ import butterknife.OnClick;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-/**
- * Created by hcc on 16/8/4 21:18
- * 100332338@qq.com
- * <p/>
+/*
  * 视频简介界面
  */
 public class VideoIntroductionFragment extends RxLazyFragment {
     @BindView(R.id.tv_title)
     TextView mTitleText;
     @BindView(R.id.tv_play_time)
-    TextView mPlayTimeText;
+    TextView mPlayTimeText;//视频播放数量
     @BindView(R.id.tv_review_count)
-    TextView mReviewCountText;
+    TextView mReviewCountText;//视频弹幕数量
     @BindView(R.id.tv_description)
-    TextView mDescText;
+    TextView mDescText;//Up主信息
     @BindView(R.id.author_tag)
     UserTagView mAuthorTagView;
     @BindView(R.id.share_num)
-    TextView mShareNum;
+    TextView mShareNum;//分享数量
     @BindView(R.id.coin_num)
-    TextView mCoinNum;
+    TextView mCoinNum;//投币数量
     @BindView(R.id.fav_num)
-    TextView mFavNum;
+    TextView mFavNum;//收藏数量
     @BindView(R.id.tags_layout)
     TagFlowLayout mTagFlowLayout;
     @BindView(R.id.recycle)
@@ -60,11 +60,15 @@ public class VideoIntroductionFragment extends RxLazyFragment {
 
     private int av;
     private VideoDetailsInfo.DataBean mVideoDetailsInfo;
+    JSONObject _resource = null;
 
-    public static VideoIntroductionFragment newInstance(int aid) {
+    public static VideoIntroductionFragment newInstance(int rid, JSONObject resource) {
         VideoIntroductionFragment fragment = new VideoIntroductionFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(ConstantUtil.EXTRA_AV, aid);
+        bundle.putInt(ConstantUtil.EXTRA_AV, rid);
+        if(resource!=null)
+            bundle.putString("resource",resource.toString());
+
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -77,34 +81,39 @@ public class VideoIntroductionFragment extends RxLazyFragment {
     @Override
     public void finishCreateView(Bundle state) {
         av = getArguments().getInt(ConstantUtil.EXTRA_AV);
-        loadData();
+        _resource = JsonUtil.Parse(getArguments().getString("resource"),new JSONObject());
+        //loadData();
+        finishTask();
     }
 
-    @Override
-    protected void loadData() {
-        RetrofitHelper.getBiliAppAPI()
-                .getVideoDetails(av)
-                .compose(this.bindToLifecycle())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(videoDetails -> {
-                    mVideoDetailsInfo = videoDetails.getData();
-                    finishTask();
-                }, throwable -> {
-                });
-    }
-
+//    @Override
+//    protected void loadData() {
+//        RetrofitHelper.getBiliAppAPI()
+//                .getVideoDetails(av)
+//                .compose(this.bindToLifecycle())
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(videoDetails -> {
+//                    mVideoDetailsInfo = videoDetails.getData();
+//                    finishTask();
+//                }, throwable -> {
+//                });
+//    }
 
     @Override
     protected void finishTask() {
         //设置视频标题
-        mTitleText.setText(mVideoDetailsInfo.getTitle());
+        String name = JsonUtil.GetDefStrIfEmpty(_resource,"name","");
+        String title = JsonUtil.GetDefStrIfEmpty(_resource,"title","");
+        mTitleText.setText((name + " " + title).trim());
         //设置视频播放数量
-        mPlayTimeText.setText(NumberUtil.converString(mVideoDetailsInfo.getStat().getView()));
+        if(_resource.has("playCount"))
+            mPlayTimeText.setText(NumberUtil.converString(_resource.optInt("playCount")));
         //设置视频弹幕数量
-        mReviewCountText.setText(NumberUtil.converString(mVideoDetailsInfo.getStat().getDanmaku()));
+        if(_resource.has("barrageCount"))
+            mReviewCountText.setText(NumberUtil.converString(_resource.optInt("barrageCount")));
         //设置Up主信息
-        mDescText.setText(mVideoDetailsInfo.getDesc());
+        mDescText.setText(_resource.optString("description"));
         mAuthorTagView.setUpWithInfo(getActivity(), mVideoDetailsInfo.getOwner().getName(),
                 mVideoDetailsInfo.getOwner().getMid(), mVideoDetailsInfo.getOwner().getFace());
         //设置分享 收藏 投币数量

@@ -39,13 +39,16 @@ public class ServerReply
         _message = null;
         _inner = null;
     }
-    public boolean IsSucceed(){
+    public boolean IsSucceed()
+    {
         return  _flag == 1;
     }
-    public int Flag(){
+    public int Flag()
+    {
         return _flag;
     }
-    public String Message(){
+    public String Message()
+    {
         return _message;
     }
     public int GetInt(String key,int def)
