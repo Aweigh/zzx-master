@@ -3,9 +3,11 @@ package com.hotbitmapgg.bilibili.module.video;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -13,14 +15,20 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.hotbitmapgg.bilibili.base.RxBaseActivity;
+import com.hotbitmapgg.bilibili.entity.AppContext;
+import com.hotbitmapgg.bilibili.entity.ServerReply;
 import com.hotbitmapgg.bilibili.media.MediaController;
 import com.hotbitmapgg.bilibili.media.VideoPlayerView;
 import com.hotbitmapgg.bilibili.media.callback.DanmukuSwitchListener;
 import com.hotbitmapgg.bilibili.media.callback.VideoBackListener;
 import com.hotbitmapgg.bilibili.media.danmuku.BiliDanmukuDownloadUtil;
 import com.hotbitmapgg.bilibili.network.RetrofitHelper;
+import com.hotbitmapgg.bilibili.network.auxiliary.Const;
 import com.hotbitmapgg.bilibili.utils.ConstantUtil;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.ohmybilibili.R;
+
+import org.json.JSONObject;
 
 import java.util.HashMap;
 
@@ -39,16 +47,13 @@ import rx.schedulers.Schedulers;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 /**
- * Created by hcc on 16/8/30 19:50
- * 100332338@qq.com
- * <p/>
  * 视频播放界面
  */
 public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitchListener, VideoBackListener {
     @BindView(R.id.sv_danmaku)
-    IDanmakuView mDanmakuView;
+    IDanmakuView mDanmakuView;//弹幕控件
     @BindView(R.id.playerView)
-    VideoPlayerView mPlayerView;
+    VideoPlayerView mPlayerView;//播放器控件
     @BindView(R.id.buffering_indicator)
     View mBufferingIndicator;
     @BindView(R.id.video_start)
@@ -64,12 +69,14 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
     private String startText = "初始化播放器...";
     private AnimationDrawable mLoadingAnim;
     private DanmakuContext danmakuContext;
+    JSONObject  _resource = null;
+    String      _streamData = null;
+    JSONObject  _streamConfig = null;
 
     @Override
     public int getLayoutId() {
         return R.layout.activity_video_player;
     }
-
 
     @Override
     public void initViews(Bundle savedInstanceState) {
@@ -77,6 +84,8 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
         if (intent != null) {
             cid = intent.getIntExtra(ConstantUtil.EXTRA_CID, 0);
             title = intent.getStringExtra(ConstantUtil.EXTRA_TITLE);
+            String modeule_params = intent.getStringExtra(Const.MODULE_PARAMS);
+            _resource = JsonUtil.Parse(modeule_params,new JSONObject());
         }
         initAnimation();
         initMediaPlayer();
@@ -119,7 +128,6 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
         loadData();
     }
 
-
     /**
      * 初始化加载动画
      */
@@ -131,7 +139,6 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
         mLoadingAnim.start();
     }
 
-
     @Override
     public void initToolBar() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -139,12 +146,32 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-
     /**
      * 获取视频数据以及解析弹幕
      */
     @Override
-    public void loadData() {
+    public void loadData()
+    {
+        int rid = JsonUtil.GetInt(_resource,"id",0);
+        RetrofitHelper.getZZXAPI()
+                .getResourceStream(rid, AppContext.AccountID)
+                .compose(this.bindToLifecycle())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    ServerReply reply = new ServerReply(response);
+                    if(!reply.IsSucceed()){
+                        Log.e(Const.LOG_TAG,"请求资源数据流失败," + reply.Message());
+                        onErrorOccur(reply.Message());
+                        return;
+                    }
+                    _streamData = reply.GetString("streamData",null);
+                    _streamConfig = reply.GetJObject("streamConfig",new JSONObject());
+                    finishTask();
+                }, throwable -> {
+                    onErrorOccur(throwable.getMessage());
+                });
+
         RetrofitHelper.getBiliGoAPI()
                 .getHDVideoUrl(cid, 4, ConstantUtil.VIDEO_TYPE_MP4)
                 .compose(bindToLifecycle())
@@ -196,7 +223,17 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
                     mPrepareText.setText(startText);
                 });
     }
+    private void finishTask()
+    {
 
+    }
+    private void onErrorOccur(String message)
+    {
+        startText = startText + "【失败】\n视频缓冲中...";
+        mPrepareText.setText(startText);
+        startText = startText + "【失败】\n" + message;
+        mPrepareText.setText(startText);
+    }
 
     /**
      * 视频缓冲事件回调
@@ -262,8 +299,6 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
                 mDanmakuView.pause();
             }
         }
-
-
         @Override
         public void OnVideoResume() {
             if (mDanmakuView != null && mDanmakuView.isPaused()) {
@@ -271,7 +306,6 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
             }
         }
     };
-
 
     @Override
     protected void onResume() {
@@ -284,7 +318,6 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
         }
     }
 
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -296,7 +329,6 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
             mDanmakuView.pause();
         }
     }
-
 
     @Override
     public void onBackPressed() {
@@ -328,7 +360,6 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
         }
     }
 
-
     /**
      * 弹幕开关回调
      */
@@ -343,7 +374,6 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
         }
     }
 
-
     /**
      * 退出界面回调
      */
@@ -352,11 +382,12 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
         onBackPressed();
     }
 
+    public static void launch(Activity activity, JSONObject resource)
+    {
+        if(resource == null) return;
 
-    public static void launch(Activity activity, int cid, String title) {
         Intent mIntent = new Intent(activity, VideoPlayerActivity.class);
-        mIntent.putExtra(ConstantUtil.EXTRA_CID, cid);
-        mIntent.putExtra(ConstantUtil.EXTRA_TITLE, title);
+        mIntent.putExtra(Const.MODULE_PARAMS, resource.toString());
         activity.startActivity(mIntent);
     }
 }

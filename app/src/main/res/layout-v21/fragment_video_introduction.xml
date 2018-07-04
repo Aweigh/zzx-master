@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:overScrollMode="never">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,7 +14,7 @@
         android:orientation="vertical"
         android:paddingTop="@dimen/video_details_margin_top"
         android:visibility="visible">
-
+        <!-- 标题 例如:[7月]齐木楠雄的灾难(日播版)01-->
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
@@ -38,13 +37,12 @@
             android:paddingEnd="@dimen/default_general_margin"
             android:paddingStart="@dimen/default_general_margin">
 
-
             <ImageView
                 android:layout_width="@dimen/video_info_mini_icons_size"
                 android:layout_height="@dimen/video_info_mini_icons_size"
                 android:src="@drawable/ic_info_views"
                 android:tint="@color/black_alpha_45" />
-
+            <!-- 视频播放数量 -->
             <TextView
                 android:id="@+id/tv_play_time"
                 android:layout_width="wrap_content"
@@ -62,7 +60,7 @@
                 android:layout_height="@dimen/video_info_mini_icons_size"
                 android:src="@drawable/ic_info_danmakus"
                 android:tint="@color/black_alpha_45" />
-
+            <!-- 视频弹幕数量 -->
             <TextView
                 android:id="@+id/tv_review_count"
                 android:layout_width="wrap_content"
@@ -71,13 +69,12 @@
                 android:textColor="@color/black_alpha_45"
                 android:textSize="@dimen/default_tiny_text_size" />
 
-
         </LinearLayout>
 
         <Space
             android:layout_width="match_parent"
             android:layout_height="8dp" />
-
+        <!-- 资源描述信息 -->
         <TextView
             android:id="@+id/tv_description"
             android:layout_width="match_parent"
@@ -87,6 +84,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textColor="@color/black_alpha_45" />
 
+        <!--
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -103,7 +101,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
-
+                <!- 分享数量 ->
                 <TextView
                     android:id="@+id/share_num"
                     android:layout_width="wrap_content"
@@ -126,10 +124,7 @@
                     android:textColor="@color/font_normal"
                     android:textSize="@dimen/default_tiny_text_size" />
 
-
             </LinearLayout>
-
-
             <LinearLayout
                 android:id="@+id/btn_coin"
                 android:layout_width="wrap_content"
@@ -137,7 +132,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
-
+                <!- 投币数量 ->
                 <TextView
                     android:id="@+id/coin_num"
                     android:layout_width="wrap_content"
@@ -159,9 +154,7 @@
                     android:textColor="@color/font_normal"
                     android:textSize="@dimen/default_tiny_text_size" />
 
-
             </LinearLayout>
-
 
             <LinearLayout
                 android:id="@+id/btn_fav"
@@ -170,7 +163,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
-
+                <!- 收藏数量 ->
                 <TextView
                     android:id="@+id/fav_num"
                     android:layout_width="wrap_content"
@@ -191,7 +184,6 @@
                     android:text="@string/collection"
                     android:textColor="@color/font_normal"
                     android:textSize="@dimen/default_tiny_text_size" />
-
 
             </LinearLayout>
 
@@ -223,7 +215,6 @@
                     android:textColor="@color/font_normal"
                     android:textSize="@dimen/default_tiny_text_size" />
 
-
             </LinearLayout>
 
         </LinearLayout>
@@ -232,19 +223,20 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/line_height"
             android:background="@color/gray_light" />
-
+        -->
+        <!-- Up主信息
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/default_general_margin">
-
+            <!- 用户头像和名称 ->
             <com.hotbitmapgg.bilibili.widget.UserTagView
                 android:id="@+id/author_tag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerInParent="true" />
-
+            <!- +关注 AW:看起来像按钮，其实不是 ->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -262,6 +254,7 @@
             android:layout_height="@dimen/line_height"
             android:background="@color/gray_light" />
 
+        <!- 请赐予我电量吧，充电，更多电量更多灵感 ->
         <include layout="@layout/layout_user_chase_bangumi_head" />
 
         <View
@@ -273,7 +266,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-
+            <!- 标签相关 ->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -281,8 +274,7 @@
                 android:text="@string/about_tag"
                 android:textColor="@color/font_normal"
                 android:textSize="@dimen/default_small_text_size" />
-
-
+            <!- 编辑 ->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -292,10 +284,8 @@
                 android:textColor="@color/black_alpha_45"
                 android:textSize="@dimen/default_tiny_text_size" />
 
-
         </RelativeLayout>
-
-
+        <!- 标签列表 ->
         <com.zhy.view.flowlayout.TagFlowLayout
             android:id="@+id/tags_layout"
             android:layout_width="match_parent"
@@ -303,7 +293,7 @@
             android:layout_marginEnd="@dimen/default_tiny_padding"
             android:layout_marginStart="@dimen/default_tiny_padding"
             app:max_select="-1" />
-
+        -->
         <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/line_height"
@@ -313,8 +303,7 @@
             android:id="@+id/layout_video_related"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-
+            <!--视频相关-->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -325,7 +314,6 @@
 
         </RelativeLayout>
 
-
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycle"
             android:layout_width="match_parent"
@@ -334,8 +322,6 @@
             android:overScrollMode="never"
             android:scrollbars="none" />
 
-
     </LinearLayout>
-
 
 </android.support.v4.widget.NestedScrollView>

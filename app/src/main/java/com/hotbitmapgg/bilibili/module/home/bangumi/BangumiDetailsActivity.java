@@ -305,13 +305,15 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         mBangumiDetailsSelectionAdapter.notifyItemForeground(_videoResourceArr.size() - 1);
         mBangumiSelectionRecycler.scrollToPosition(_videoResourceArr.size() - 1);
         mBangumiDetailsSelectionAdapter.setOnItemClickListener((position, holder) -> {
-            JSONObject videoRes = _videoResourceArr.get(position);
+            JSONObject videoRes = _videoResourceArr.get(position);//获取具体资源数据
+            if(!videoRes.has("description"))
+                JsonUtil.SetValue(videoRes,"description",_videoDetail.getDescription());
             mBangumiDetailsSelectionAdapter.notifyItemForeground(holder.getLayoutPosition());
 
             Intent intent = new Intent(this, VideoDetailsActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("params", videoRes.toString());
-            this.startActivity(intent);
+            intent.putExtra(Const.MODULE_PARAMS, videoRes.toString());
+            this.startActivity(intent);//跳转并将参数将数据传递给下一个页面
         });
     }
 
@@ -360,7 +362,6 @@ public class BangumiDetailsActivity extends RxBaseActivity {
             }
         });
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

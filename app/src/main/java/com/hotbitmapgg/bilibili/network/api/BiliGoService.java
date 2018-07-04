@@ -20,6 +20,7 @@ public interface BiliGoService {
      * b站高清视频
      * quailty:清晰度(1~2，根据视频有不同)
      * type: 格式(mp4/flv)
+     * AWEIGH:这个接口现在好像不能用了,请求不到数据
      */
     @GET("/video/{cid}")
     Observable<HDVideoInfo> getHDVideoUrl(@Path("cid") int cid, @Query("quailty") int quailty, @Query("type") String type);

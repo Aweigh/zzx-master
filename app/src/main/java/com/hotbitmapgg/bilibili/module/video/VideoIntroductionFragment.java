@@ -43,29 +43,27 @@ public class VideoIntroductionFragment extends RxLazyFragment {
     TextView mReviewCountText;//视频弹幕数量
     @BindView(R.id.tv_description)
     TextView mDescText;//Up主信息
-    @BindView(R.id.author_tag)
-    UserTagView mAuthorTagView;
-    @BindView(R.id.share_num)
-    TextView mShareNum;//分享数量
-    @BindView(R.id.coin_num)
-    TextView mCoinNum;//投币数量
-    @BindView(R.id.fav_num)
-    TextView mFavNum;//收藏数量
-    @BindView(R.id.tags_layout)
-    TagFlowLayout mTagFlowLayout;
+    //@BindView(R.id.author_tag)
+    //UserTagView mAuthorTagView;
+
+    //@BindView(R.id.share_num)
+    //TextView mShareNum;//分享数量
+    //@BindView(R.id.coin_num)
+    //TextView mCoinNum;//投币数量
+    //@BindView(R.id.fav_num)
+    //TextView mFavNum;//收藏数量
+    //@BindView(R.id.tags_layout)//标签列表控件
+    //TagFlowLayout mTagFlowLayout;
     @BindView(R.id.recycle)
     RecyclerView mRecyclerView;
     @BindView(R.id.layout_video_related)
     RelativeLayout mVideoRelatedLayout;
 
-    private int av;
-    private VideoDetailsInfo.DataBean mVideoDetailsInfo;
     JSONObject _resource = null;
 
-    public static VideoIntroductionFragment newInstance(int rid, JSONObject resource) {
+    public static VideoIntroductionFragment newInstance(JSONObject resource) {
         VideoIntroductionFragment fragment = new VideoIntroductionFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(ConstantUtil.EXTRA_AV, rid);
         if(resource!=null)
             bundle.putString("resource",resource.toString());
 
@@ -74,31 +72,15 @@ public class VideoIntroductionFragment extends RxLazyFragment {
     }
 
     @Override
-    public int getLayoutResId() {
+    public int getLayoutResId() {//指向layout-v21/fragment_video_introduction.xml,因为目前我们不支持低版本
         return R.layout.fragment_video_introduction;
     }
 
     @Override
     public void finishCreateView(Bundle state) {
-        av = getArguments().getInt(ConstantUtil.EXTRA_AV);
         _resource = JsonUtil.Parse(getArguments().getString("resource"),new JSONObject());
-        //loadData();
         finishTask();
     }
-
-//    @Override
-//    protected void loadData() {
-//        RetrofitHelper.getBiliAppAPI()
-//                .getVideoDetails(av)
-//                .compose(this.bindToLifecycle())
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(videoDetails -> {
-//                    mVideoDetailsInfo = videoDetails.getData();
-//                    finishTask();
-//                }, throwable -> {
-//                });
-//    }
 
     @Override
     protected void finishTask() {
@@ -112,22 +94,27 @@ public class VideoIntroductionFragment extends RxLazyFragment {
         //设置视频弹幕数量
         if(_resource.has("barrageCount"))
             mReviewCountText.setText(NumberUtil.converString(_resource.optInt("barrageCount")));
-        //设置Up主信息
-        mDescText.setText(_resource.optString("description"));
+        //资源描述信息
+        if(_resource.has("description"))
+            mDescText.setText(_resource.optString("description"));
+        /*//设置Up主信息
         mAuthorTagView.setUpWithInfo(getActivity(), mVideoDetailsInfo.getOwner().getName(),
                 mVideoDetailsInfo.getOwner().getMid(), mVideoDetailsInfo.getOwner().getFace());
+
         //设置分享 收藏 投币数量
         mShareNum.setText(NumberUtil.converString(mVideoDetailsInfo.getStat().getShare()));
         mFavNum.setText(NumberUtil.converString(mVideoDetailsInfo.getStat().getFavorite()));
         mCoinNum.setText(NumberUtil.converString(mVideoDetailsInfo.getStat().getCoin()));
+
         //设置视频tags
         setVideoTags();
+        */
         //设置视频相关
         setVideoRelated();
     }
 
     private void setVideoRelated() {
-        List<VideoDetailsInfo.DataBean.RelatesBean> relates = mVideoDetailsInfo.getRelates();
+        List<VideoDetailsInfo.DataBean.RelatesBean> relates = null;// mVideoDetailsInfo.getRelates();
         if (relates == null) {
             mVideoRelatedLayout.setVisibility(View.GONE);
             return;
@@ -141,8 +128,10 @@ public class VideoIntroductionFragment extends RxLazyFragment {
                 relates.get(position).getAid(), relates.get(position).getPic()));
     }
 
+/*
     private void setVideoTags() {
-        List<String> tags = mVideoDetailsInfo.getTags();
+        List<String> tags = null;// mVideoDetailsInfo.getTags();
+        if(tags == null) return;
         mTagFlowLayout.setAdapter(new TagAdapter<String>(tags) {
             @Override
             public View getView(FlowLayout parent, int position, String s) {
@@ -153,7 +142,6 @@ public class VideoIntroductionFragment extends RxLazyFragment {
         });
     }
 
-
     @OnClick(R.id.btn_share)
     void share() {
         Intent intent = new Intent(Intent.ACTION_SEND);
@@ -162,4 +150,5 @@ public class VideoIntroductionFragment extends RxLazyFragment {
         intent.putExtra(Intent.EXTRA_TEXT, "来自「哔哩哔哩」的分享:" + mVideoDetailsInfo.getDesc());
         startActivity(Intent.createChooser(intent, mVideoDetailsInfo.getTitle()));
     }
+    */
 }

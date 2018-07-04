@@ -92,7 +92,7 @@ public class VideoDetailsActivity extends RxBaseActivity {
         Intent intent = getIntent();
         if (intent != null)
         {//获取从前一个Activity传递过来的参数
-            String params = intent.getStringExtra("params");
+            String params = intent.getStringExtra(Const.MODULE_PARAMS);
             _resource = JsonUtil.Parse(params,new JSONObject());
             _id = _resource.optInt("id");
             String imgUrl = _resource.optString("cover");
@@ -111,7 +111,8 @@ public class VideoDetailsActivity extends RxBaseActivity {
         mFAB.setClickable(false);
         mFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.gray_20)));
         mFAB.setTranslationY(-getResources().getDimension(R.dimen.floating_action_button_size_half));
-        mFAB.setOnClickListener(v -> VideoPlayerActivity.launch(VideoDetailsActivity.this, mVideoDetailsInfo.getPages().get(0).getCid(), mVideoDetailsInfo.getTitle()));
+        //播放按钮点击事件,切换到视频播放界面
+        mFAB.setOnClickListener(v -> VideoPlayerActivity.launch(VideoDetailsActivity.this, _resource));
         mAppBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> setViewsTranslation(verticalOffset));
         mAppBarLayout.addOnOffsetChangedListener(new AppBarStateChangeEvent() {
             @Override
@@ -234,16 +235,16 @@ public class VideoDetailsActivity extends RxBaseActivity {
         mFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
         mCollapsingToolbarLayout.setTitle("");
         //设置和声明两个Fragment:简介和评论(xxxx)
-        VideoIntroductionFragment mVideoIntroductionFragment = VideoIntroductionFragment.newInstance(_id,_resource);
+        VideoIntroductionFragment mVideoIntroductionFragment = VideoIntroductionFragment.newInstance(_resource);
         VideoCommentFragment mVideoCommentFragment = VideoCommentFragment.newInstance(_id);
         fragments.add(mVideoIntroductionFragment);//添加简介区域
         fragments.add(mVideoCommentFragment);//添加评论区域
+        titles.add("简介");
+        titles.add("评论" + "(" + JsonUtil.GetInt(_resComments,"totoal",0) + ")");
         setPagerTitle();
     }
 
     private void setPagerTitle() {
-        titles.add("简介");
-        titles.add("评论" + "(" + JsonUtil.GetInt(_resComments,"totoal",0) + ")");
         VideoDetailsPagerAdapter mAdapter = new VideoDetailsPagerAdapter(getSupportFragmentManager(), fragments, titles);
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOffscreenPageLimit(2);
@@ -251,17 +252,13 @@ public class VideoDetailsActivity extends RxBaseActivity {
         measureTabLayoutTextWidth(0);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
             @Override
             public void onPageSelected(int position) {
                 measureTabLayoutTextWidth(position);
             }
-
             @Override
-            public void onPageScrollStateChanged(int state) {
-            }
+            public void onPageScrollStateChanged(int state) {}
         });
     }
 
