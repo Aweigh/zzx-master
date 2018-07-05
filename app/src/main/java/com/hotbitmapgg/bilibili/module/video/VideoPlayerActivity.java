@@ -3,10 +3,10 @@ package com.hotbitmapgg.bilibili.module.video;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -29,7 +29,11 @@ import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.ohmybilibili.R;
 
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 
 import butterknife.BindView;
@@ -63,12 +67,12 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
     @BindView(R.id.video_start_info)
     TextView mPrepareText;
 
-    private int cid;
     private String title;
     private int LastPosition = 0;
     private String startText = "初始化播放器...";
     private AnimationDrawable mLoadingAnim;
     private DanmakuContext danmakuContext;
+    private int _rid = 0;
     JSONObject  _resource = null;
     String      _streamData = null;
     JSONObject  _streamConfig = null;
@@ -82,7 +86,7 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
     public void initViews(Bundle savedInstanceState) {
         Intent intent = getIntent();
         if (intent != null) {
-            cid = intent.getIntExtra(ConstantUtil.EXTRA_CID, 0);
+            _rid = intent.getIntExtra(ConstantUtil.EXTRA_CID, 0);
             title = intent.getStringExtra(ConstantUtil.EXTRA_TITLE);
             String modeule_params = intent.getStringExtra(Const.MODULE_PARAMS);
             _resource = JsonUtil.Parse(modeule_params,new JSONObject());
@@ -133,8 +137,7 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
      */
     private void initAnimation() {
         mVideoPrepareLayout.setVisibility(View.VISIBLE);
-        startText = startText + "【完成】\n解析视频地址...【完成】\n全舰弹幕填装...";
-        mPrepareText.setText(startText);
+        appendMessage("【完成】\n解析视频地址...");
         mLoadingAnim = (AnimationDrawable) mAnimImageView.getBackground();
         mLoadingAnim.start();
     }
@@ -162,18 +165,18 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
                     ServerReply reply = new ServerReply(response);
                     if(!reply.IsSucceed()){
                         Log.e(Const.LOG_TAG,"请求资源数据流失败," + reply.Message());
-                        onErrorOccur(reply.Message());
+                        appendMessage("【失败】\n错误信息:" + reply.Message());
                         return;
                     }
                     _streamData = reply.GetString("streamData",null);
                     _streamConfig = reply.GetJObject("streamConfig",new JSONObject());
-                    finishTask();
+                    finishLoadDataTask();
                 }, throwable -> {
-                    onErrorOccur(throwable.getMessage());
+                    appendMessage("【失败】\n错误信息:" + throwable.getMessage());
                 });
 
-        RetrofitHelper.getBiliGoAPI()
-                .getHDVideoUrl(cid, 4, ConstantUtil.VIDEO_TYPE_MP4)
+/*        RetrofitHelper.getBiliGoAPI()
+                .getHDVideoUrl(_rid, 4, ConstantUtil.VIDEO_TYPE_MP4)
                 .compose(bindToLifecycle())
                 .map(videoInfo -> Uri.parse(videoInfo.getDurl().get(0).getUrl()))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -187,7 +190,7 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
                             mPrepareText.setText(startText);
                             mVideoPrepareLayout.setVisibility(View.GONE);
                         });
-                        String url = "http://comment.bilibili.com/" + cid + ".xml";
+                        String url = "http://comment.bilibili.com/" + _rid + ".xml";
                         return BiliDanmukuDownloadUtil.downloadXML(url);
                     }
                 })
@@ -221,17 +224,50 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
                     mPrepareText.setText(startText);
                     startText = startText + "【失败】\n" + throwable.getMessage();
                     mPrepareText.setText(startText);
-                });
+                });*/
     }
-    private void finishTask()
+    private void finishLoadDataTask()
     {
+        try
+        {
+            if(!TextUtils.isEmpty(_streamData))
+            {//将流数据写入vres_xxx.ffconcat文件中
+                File fileDir = this.getExternalCacheDir();
+                File streamfile = new File(fileDir,String.format("vres_%d.ffconcat",_rid));
+                if(!streamfile.exists())
+                    streamfile.createNewFile();
 
+                DataOutputStream fw = new DataOutputStream(new FileOutputStream(streamfile));
+                fw.write(_streamData.getBytes());
+                fw.close();
+
+                String filePath = streamfile.getPath();
+                mPlayerView.setVideoPath(filePath);//视频控件加载ffconcat资源文件
+                mPlayerView.setOnPreparedListener(mp -> {
+                    mLoadingAnim.stop();
+                    appendMessage("【完成】\n视频缓冲中...");
+                    mVideoPrepareLayout.setVisibility(View.GONE);
+                });
+                mPlayerView.setOnErrorListener((mp, what, extra)->{
+                    appendMessage(String.format("【错误】\nVideoView.setOnErrorListener(what:%d,extra:%d)",what,extra));
+                    return true;
+                });
+                mPlayerView.setOnCompletionListener(mp -> {
+                    appendMessage("【错误】\nVideoView.setOnCompletionListener");
+                });
+                mPlayerView.start();
+            }
+        }
+        catch (Exception e)
+        {
+            appendMessage(String.format("【错误】\nfinishLoadDataTask.Exception:" + e.getMessage()));
+        }
     }
-    private void onErrorOccur(String message)
+    private void appendMessage(String message)
     {
-        startText = startText + "【失败】\n视频缓冲中...";
-        mPrepareText.setText(startText);
-        startText = startText + "【失败】\n" + message;
+        if(TextUtils.isEmpty(message)) return;
+
+        startText = startText + message;
         mPrepareText.setText(startText);
     }
 
