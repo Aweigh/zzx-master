@@ -17,7 +17,7 @@ public interface ZZXService
     ///<summary>视频首页接口</summary>
     ///<param name="cid">视频类目</param>
     ///<result>返回Json对象</result>
-    @GET("Application/Service/VideoHome?t=2")
+    @GET("Application/Service/VideoHome?t=3")
     Observable<ResponseBody> getVideoHome(@Query("cid") int cid);
 
     ///<summary>视频详细信息接口</summary>
@@ -37,6 +37,6 @@ public interface ZZXService
     ///<param name="rid">资源ID</param>
     ///<param name="aid">账号ID</param>
     ///<result>返回Json对象</result>
-    @GET("Application/Service/GetResourceStream?t=2")
+    @GET("Application/Service/GetResourceStream?t=3")
     Observable<ResponseBody> getResourceStream(@Query("rid") int rid,@Query("aid") int aid);
 }

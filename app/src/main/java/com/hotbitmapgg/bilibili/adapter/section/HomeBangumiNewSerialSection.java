@@ -12,17 +12,20 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.gson.JsonObject;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiAppIndexInfo;
 import com.hotbitmapgg.bilibili.module.home.bangumi.BangumiDetailsActivity;
 import com.hotbitmapgg.bilibili.module.home.bangumi.NewBangumiSerialActivity;
 import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.utils.NumberUtil;
+import com.hotbitmapgg.bilibili.utils.PathUtil;
 import com.hotbitmapgg.bilibili.widget.sectioned.StatelessSection;
 import com.hotbitmapgg.ohmybilibili.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -36,11 +39,12 @@ import butterknife.ButterKnife;
 public class HomeBangumiNewSerialSection extends StatelessSection
 {
     private Context mContext;
-    private List<BangumiAppIndexInfo.ResultBean.SerializingBean> newBangumiSerials;
+    //private List<BangumiAppIndexInfo.ResultBean.SerializingBean> newBangumiSerials;
     private String _headTitle = "新番连载";
     private String _moreText = "所有连载";
     private String _newest_ep_index_format = "更新至第%d话";
     private String _watching_count_format = "%d人在看";
+    private List<JSONObject> _itemArr = null;
 
     public HomeBangumiNewSerialSection(Context context,JSONObject cfg)
     {
@@ -48,20 +52,38 @@ public class HomeBangumiNewSerialSection extends StatelessSection
         this.mContext = context;
         if(cfg!=null)
         {
-            //文本信息配置
+            /*文本信息配置cfg==>
+            {
+            "title":"xxxx",
+            "moreText":"xxxx",
+            "newest_ep_index_format":"xxxx",
+            "watching_count_format":"xxxx",
+            "list":[{
+                  "id":"xxx",
+                  "title":"xxx",
+                  "cover":"xxx",
+                  "newest_ep_index":-1,
+                  "desc":"xxx",
+                  "link":"xxx",
+                  "watching_count":-1
+                 }]
+             }*/
             _headTitle = JsonUtil.GetString(cfg,"title","正在热播");
             _moreText = JsonUtil.GetString(cfg,"moreText","更多..");
             _newest_ep_index_format = JsonUtil.GetString(cfg,"newest_ep_index_format","更新至第%d话");
             _watching_count_format = JsonUtil.GetString(cfg,"watching_count_format","%d人在看");
 
-            JSONArray itemArr = cfg.optJSONArray("list");//hotItems.list
-            this.newBangumiSerials = BangumiAppIndexInfo.ResultBean.SerializingBean.From(itemArr);
+            _itemArr = JsonUtil.GetJObjArray(cfg,"list");//hotItems.list
+            if(_itemArr == null) _itemArr = new ArrayList<JSONObject>();
+
+            //JSONArray itemArr = cfg.optJSONArray("list");//hotItems.list
+            //this.newBangumiSerials = BangumiAppIndexInfo.ResultBean.SerializingBean.From(itemArr);
         }
     }
 
     @Override
     public int getContentItemsTotal() {
-        return newBangumiSerials.size();
+        return _itemArr.size();
     }
 
     @Override
@@ -73,25 +95,31 @@ public class HomeBangumiNewSerialSection extends StatelessSection
     @Override
     public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
         ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-        BangumiAppIndexInfo.ResultBean.SerializingBean serializingBean = newBangumiSerials.get(position);
+        JSONObject vitem = _itemArr.get(position);
+
+        long id = JsonUtil.GetInt64(vitem,"id",0x0);
+        String title = JsonUtil.GetString(vitem,"title","");
+        String cover = PathUtil.GetZZXImageURL(vitem.optString("cover"),true);
+        int watching_count = vitem.optInt("watching_count",-1);
+        int newest_ep_index = vitem.optInt("newest_ep_index",-1);
 
         //从网络下载图片并加载到控件中
         Glide.with(mContext)
-                .load(serializingBean.getCover(true))
+                .load(cover)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.bili_default_image_tv)
                 .dontAnimate()
                 .into(itemViewHolder.mImage);
 
-        itemViewHolder.mTitle.setText(serializingBean.getTitle());
-        if(serializingBean.getWatching_count()>=0) {
-            String text = String.format(_watching_count_format,serializingBean.getWatching_count());
+        itemViewHolder.mTitle.setText(title);
+        if(watching_count>=0) {
+            String text = String.format(_watching_count_format,watching_count);
             itemViewHolder.mPlay.setText(text);
         }
 
-        if(serializingBean.getNewest_ep_index()>=0) {
-            String text = String.format(_newest_ep_index_format,serializingBean.getNewest_ep_index());
+        if(newest_ep_index>=0) {
+            String text = String.format(_newest_ep_index_format,newest_ep_index);
             itemViewHolder.mUpdate.setText(text);
         }
         //点击视频项跳转到BangumiDetailsActivity页面

@@ -34,6 +34,11 @@ public class JsonUtil
         if(obj==null||key==null||key.isEmpty() || !obj.has(key)) return def;
         return  obj.optInt(key);
     }
+    public static long GetInt64(JSONObject obj, String key, long def)
+    {
+        if(obj==null||key==null||key.isEmpty() || !obj.has(key)) return def;
+        return  obj.optLong(key);
+    }
     ///<summary>设置属性值</summary>
     public static boolean SetValue(JSONObject obj,String key,Object value)
     {
@@ -68,6 +73,12 @@ public class JsonUtil
             return  def;//空字符串或null字符串则返回默认值
         return  value;
     }
+    public static String GetZZXImageURL(JSONObject obj,String key,boolean isCheckAndBackWholeURL)
+    {
+        if(obj==null || key==null || key.isEmpty() || !obj.has(key)) return "";
+        String tempURL = obj.optString(key);
+        return  PathUtil.GetZZXImageURL(tempURL,isCheckAndBackWholeURL);
+    }
 
     public static JSONObject GetJObject(JSONObject obj,String key)
     {
@@ -87,7 +98,7 @@ public class JsonUtil
         if(arrTemp==null) return  null;
 
         List<JSONObject> lst = new ArrayList<JSONObject>();
-        for (int i=0;arrTemp!=null && i<arrTemp.length();i++)
+        for (int i=0;i<arrTemp.length();i++)
         {
             JSONObject item = arrTemp.optJSONObject(i);
             if(item!=null)

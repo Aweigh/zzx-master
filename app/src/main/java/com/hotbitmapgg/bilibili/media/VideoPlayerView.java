@@ -394,6 +394,33 @@ public class VideoPlayerView extends SurfaceView implements MediaPlayerListener 
         }
     }
 
+    private IjkMediaPlayer createPlayer() {
+        IjkMediaPlayer ijkMediaPlayer = new IjkMediaPlayer();
+        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", 1);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", 1);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 1);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", IjkMediaPlayer.SDL_FCC_RV32);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 1);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fflags", 0);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "probsize", 4096);
+
+        //add by aweigh 20180329
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "allowed_extensions", "ALL");
+        /*by="Aweigh" date="2018/04/18 16:19"
+          添加如下两条设置用于支持ffconcat协议,如果没有添加则会出现如下错误
+          E/IJKMEDIA: Unsafe file name 'http://172.16.31.51:3573/Manager/Service/GetMediaFile?fname=prog/fileSequence0.ts'
+          E/IJKMEDIA: file:///storage/emulated/0/Android/data/com.example.zhangyang.ijktest/cache/xxxx.ffconcat: Operation not permitted
+          E/tv.danmaku.ijk.media.player.IjkMediaPlayer: Error (-10000,0)
+         */
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"safe",0);
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"protocol_whitelist","rtmp,concat,ffconcat,file,subfile,http,https,tls,rtp,tcp,udp,crypto");
+        return ijkMediaPlayer;
+    }
 
     private void openVideo() {
         if (mUri == null || mSurfaceHolder == null) {
@@ -409,9 +436,11 @@ public class VideoPlayerView extends SurfaceView implements MediaPlayerListener 
             // mMediaPlayer = new AndroidMediaPlayer();
             IjkMediaPlayer ijkMediaPlayer = null;
             if (mUri != null) {
-                ijkMediaPlayer = new IjkMediaPlayer();
+                ijkMediaPlayer = createPlayer();//new IjkMediaPlayer();
+                /*原始代码:
                 ijkMediaPlayer.setLogEnabled(false);
                 ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", "48");
+                */
             }
             mMediaPlayer = ijkMediaPlayer;
             assert mMediaPlayer != null;

@@ -49,6 +49,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 /**
  * 视频播放界面
@@ -67,12 +68,12 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
     @BindView(R.id.video_start_info)
     TextView mPrepareText;
 
-    private String title;
     private int LastPosition = 0;
     private String startText = "初始化播放器...";
     private AnimationDrawable mLoadingAnim;
     private DanmakuContext danmakuContext;
     private int _rid = 0;
+    private String _title;
     JSONObject  _resource = null;
     String      _streamData = null;
     JSONObject  _streamConfig = null;
@@ -86,10 +87,21 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
     public void initViews(Bundle savedInstanceState) {
         Intent intent = getIntent();
         if (intent != null) {
-            _rid = intent.getIntExtra(ConstantUtil.EXTRA_CID, 0);
-            title = intent.getStringExtra(ConstantUtil.EXTRA_TITLE);
+
             String modeule_params = intent.getStringExtra(Const.MODULE_PARAMS);
             _resource = JsonUtil.Parse(modeule_params,new JSONObject());
+            if(_resource==null)
+            {
+                String name = JsonUtil.GetDefStrIfEmpty(_resource,"name","");
+                String title = JsonUtil.GetDefStrIfEmpty(_resource,"title","");
+                _rid = JsonUtil.GetInt(_resource,"id",0x0);
+                _title = (name + " " + title).trim();
+            }
+            else
+            {
+                _rid = intent.getIntExtra(ConstantUtil.EXTRA_CID, 0);
+                _title = intent.getStringExtra(ConstantUtil.EXTRA_TITLE);
+            }
         }
         initAnimation();
         initMediaPlayer();
@@ -97,9 +109,13 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
 
     @SuppressLint("UseSparseArrays")
     private void initMediaPlayer() {
+        //加载native底层库 add aweigh 20180709 10:01
+        IjkMediaPlayer.loadLibrariesOnce(null);
+        IjkMediaPlayer.native_profileBegin("libijkplayer.so");
+
         //配置播放器
         MediaController mMediaController = new MediaController(this);
-        mMediaController.setTitle(title);
+        mMediaController.setTitle(_title);
         mPlayerView.setMediaController(mMediaController);
         mPlayerView.setMediaBufferingIndicator(mBufferingIndicator);
         mPlayerView.requestFocus();
@@ -174,57 +190,6 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
                 }, throwable -> {
                     appendMessage("【失败】\n错误信息:" + throwable.getMessage());
                 });
-
-/*        RetrofitHelper.getBiliGoAPI()
-                .getHDVideoUrl(_rid, 4, ConstantUtil.VIDEO_TYPE_MP4)
-                .compose(bindToLifecycle())
-                .map(videoInfo -> Uri.parse(videoInfo.getDurl().get(0).getUrl()))
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(new Func1<Uri, Observable<BaseDanmakuParser>>() {
-                    @Override
-                    public Observable<BaseDanmakuParser> call(Uri uri) {
-                        mPlayerView.setVideoURI(uri);
-                        mPlayerView.setOnPreparedListener(mp -> {
-                            mLoadingAnim.stop();
-                            startText = startText + "【完成】\n视频缓冲中...";
-                            mPrepareText.setText(startText);
-                            mVideoPrepareLayout.setVisibility(View.GONE);
-                        });
-                        String url = "http://comment.bilibili.com/" + _rid + ".xml";
-                        return BiliDanmukuDownloadUtil.downloadXML(url);
-                    }
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(baseDanmakuParser -> {
-                    mDanmakuView.prepare(baseDanmakuParser, danmakuContext);
-                    mDanmakuView.showFPS(false);
-                    mDanmakuView.enableDanmakuDrawingCache(false);
-                    mDanmakuView.setCallback(new DrawHandler.Callback() {
-                        @Override
-                        public void prepared() {
-                            mDanmakuView.start();
-                        }
-
-                        @Override
-                        public void updateTimer(DanmakuTimer danmakuTimer) {
-                        }
-
-                        @Override
-                        public void danmakuShown(BaseDanmaku danmaku) {
-                        }
-
-                        @Override
-                        public void drawingFinished() {
-                        }
-                    });
-                    mPlayerView.start();
-                }, throwable -> {
-                    startText = startText + "【失败】\n视频缓冲中...";
-                    mPrepareText.setText(startText);
-                    startText = startText + "【失败】\n" + throwable.getMessage();
-                    mPrepareText.setText(startText);
-                });*/
     }
     private void finishLoadDataTask()
     {

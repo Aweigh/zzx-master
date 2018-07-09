@@ -121,6 +121,7 @@ public class HomeBangumiFragment extends RxLazyFragment {
             mIsRefreshing = true;
             loadData();
         });
+        //监控下拉刷新事件
         mSwipeRefreshLayout.setOnRefreshListener(() -> {
             clearData();
             loadData();
@@ -130,9 +131,13 @@ public class HomeBangumiFragment extends RxLazyFragment {
     private void clearData()
     {
         mIsRefreshing = true;
-        banners.clear();
-        bannerList.clear();
-        bangumibobys.clear();
+        if(banners!=null)
+            banners.clear();
+        if(bannerList!=null)
+            bannerList.clear();
+        if(bangumibobys!=null)
+            bangumibobys.clear();
+
         _hotItems = null;
         _lastestItems = null;
         _recommendItems = null;
