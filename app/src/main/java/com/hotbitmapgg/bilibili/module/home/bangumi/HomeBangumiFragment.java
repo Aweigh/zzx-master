@@ -12,19 +12,17 @@ import com.hotbitmapgg.bilibili.adapter.section.HomeBangumiBobySection;
 import com.hotbitmapgg.bilibili.adapter.section.HomeBangumiItemSection;
 import com.hotbitmapgg.bilibili.adapter.section.HomeBangumiNewSerialSection;
 import com.hotbitmapgg.bilibili.adapter.section.HomeBangumiRecommendSection;
-import com.hotbitmapgg.bilibili.adapter.section.HomeBangumiSeasonNewSection;
 import com.hotbitmapgg.bilibili.base.RxLazyFragment;
 import com.hotbitmapgg.bilibili.entity.AppContext;
 import com.hotbitmapgg.bilibili.entity.ServerReply;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiAppIndexInfo;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiRecommendInfo;
 import com.hotbitmapgg.bilibili.network.RetrofitHelper;
-import com.hotbitmapgg.bilibili.network.auxiliary.Const;
+import com.hotbitmapgg.bilibili.utils.Const;
 import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.utils.SnackbarUtil;
 import com.hotbitmapgg.bilibili.widget.CustomEmptyView;
 import com.hotbitmapgg.bilibili.widget.banner.BannerEntity;
-import com.hotbitmapgg.bilibili.widget.sectioned.Section;
 import com.hotbitmapgg.bilibili.widget.sectioned.SectionedRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.R;
 
@@ -35,9 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -161,6 +157,14 @@ public class HomeBangumiFragment extends RxLazyFragment {
                     bannerList = BannerEntity.From(reply.GetJArray("adHead",null));
                     bangumibobys = BangumiAppIndexInfo.ResultBean.AdBean.BodyBean.From(reply.GetJArray("adBody",null));
 
+                    /*
+                    {
+                        "hotItems":{"list"[],"count":xx},
+                        "latestItems":{"list"[],"count":xx},
+                        "recommendItems":{"list"[],"count":xx},
+                        "navigations":[]
+                    }
+                    */
                     _hotItems = reply.GetJObject("hotItems",null);//正在热播
                     _lastestItems = reply.GetJObject("latestItems",null);//最新上映
                     _recommendItems = reply.GetJObject("recommendItems",null);//热门/推荐
@@ -184,6 +188,7 @@ public class HomeBangumiFragment extends RxLazyFragment {
 
         if(_hotItems!=null && _hotItems.has("list"))
         {//构建"新番连载"或"正在热播"区域
+            JsonUtil.CopyAttribute(AppContext.VideoPageCfg,"hot_title",_hotItems,"title");
             HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), _hotItems);
             mSectionedRecyclerViewAdapter.addSection(section);
         }
@@ -193,12 +198,14 @@ public class HomeBangumiFragment extends RxLazyFragment {
 
         if(_lastestItems!=null && _lastestItems.has("list"))
         {//构建"x月新番"或"最新上映"区域
+            JsonUtil.CopyAttribute(AppContext.VideoPageCfg,"latest_title",_lastestItems,"title");
             HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), _lastestItems);
             mSectionedRecyclerViewAdapter.addSection(section);
         }
 
         if(_recommendItems!=null && _recommendItems.has("list"))
         {//构建"番剧推荐"或"热门/推荐"区域
+            JsonUtil.CopyAttribute(AppContext.VideoPageCfg,"recommend_title",_recommendItems,"title");
             JSONArray itemArr = _recommendItems.optJSONArray("list");//recommendItems.list
             String title = JsonUtil.GetString(_recommendItems,"title","热门/推荐");
 

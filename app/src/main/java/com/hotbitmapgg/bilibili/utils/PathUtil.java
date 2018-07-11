@@ -1,6 +1,6 @@
 package com.hotbitmapgg.bilibili.utils;
 
-import com.hotbitmapgg.bilibili.network.auxiliary.ApiConstants;
+import com.hotbitmapgg.bilibili.entity.AppContext;
 
 public class PathUtil {
 
@@ -12,10 +12,10 @@ public class PathUtil {
         if(isCheckAndBackWholeURL && !path.startsWith("http"))
         {
             if(path.indexOf('/')<=0)//这是一个图片文件路径
-                return ApiConstants.ZZX_BASE_URL + "Content/product_images/" + path;
+                return AppContext.ServerBaseURL + "Content/product_images/" + path;
 
             //这是一个相对路径
-            return ApiConstants.ZZX_BASE_URL + path;
+            return AppContext.ServerBaseURL + path;
         }
         return path;
     }

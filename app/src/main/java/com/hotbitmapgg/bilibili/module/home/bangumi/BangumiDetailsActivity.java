@@ -31,14 +31,10 @@ import com.hotbitmapgg.bilibili.adapter.helper.HeaderViewRecyclerAdapter;
 import com.hotbitmapgg.bilibili.base.RxBaseActivity;
 import com.hotbitmapgg.bilibili.entity.ServerReply;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsCommentInfo;
-import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsInfo;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiDetailsRecommendInfo;
 import com.hotbitmapgg.bilibili.module.video.VideoDetailsActivity;
-import com.hotbitmapgg.bilibili.network.auxiliary.Const;
-import com.hotbitmapgg.bilibili.utils.ConstantUtil;
+import com.hotbitmapgg.bilibili.utils.Const;
 import com.hotbitmapgg.bilibili.utils.JsonUtil;
-import com.hotbitmapgg.bilibili.utils.LogUtil;
-import com.hotbitmapgg.bilibili.utils.NumberUtil;
 import com.hotbitmapgg.bilibili.utils.SystemBarHelper;
 import com.hotbitmapgg.bilibili.widget.CircleProgressView;
 import com.hotbitmapgg.ohmybilibili.R;
@@ -55,9 +51,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import jp.wasabeef.glide.transformations.BlurTransformation;
-import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -99,12 +93,11 @@ public class BangumiDetailsActivity extends RxBaseActivity {
     @BindView(R.id.tv_bangumi_comment_count)
     TextView mBangumiCommentCount;
 
-    private int seasonId;
-    private BangumiDetailsInfo.ResultBean _videoDetail;
-    private BangumiDetailsCommentInfo.DataBean.PageBean mPageInfo;
+    private long _videoID = 0;
     private List<BangumiDetailsCommentInfo.DataBean.RepliesBean> replies = new ArrayList<>();
     private List<BangumiDetailsCommentInfo.DataBean.HotsBean> hotComments = new ArrayList<>();
     private List<BangumiDetailsRecommendInfo.ResultBean.ListBean> bangumiRecommends = new ArrayList<>();
+    private JSONObject _videoDetail = null;//视频详细信息
     private JSONObject _videoComments = null;//视频评论
     private JSONArray _videoTagArr = null;//视频标签
     private List<JSONObject> _videoSeasonVerArr = null;//分季版本集合
@@ -119,16 +112,15 @@ public class BangumiDetailsActivity extends RxBaseActivity {
     public void initViews(Bundle savedInstanceState) {
         Intent intent = getIntent();
         if (intent != null) {
-            seasonId = intent.getIntExtra(ConstantUtil.EXTRA_BANGUMI_KEY, 0);
+            _videoID = intent.getLongExtra(Const.MODULE_PARAMS, 0);
         }
         loadData();
     }
 
     @Override
     public void loadData(){
-        int vid = 41;//vid=41="你的名字 日语中文字幕.mp4"
-        Log.d(Const.LOG_TAG,"BangumiDetailsActivity.loadData=>vid:" + vid);
-        RetrofitHelper.getZZXAPI().getVideoDetail(41).compose(bindToLifecycle()).
+        Log.d(Const.LOG_TAG,"BangumiDetailsActivity.loadData=>vid:" + _videoID);
+        RetrofitHelper.getZZXAPI().getVideoDetail(_videoID).compose(bindToLifecycle()).
                 doOnSubscribe(this::showProgressBar)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -139,7 +131,40 @@ public class BangumiDetailsActivity extends RxBaseActivity {
                         hideProgressBar();
                         return;
                     }
-                    _videoDetail = new BangumiDetailsInfo.ResultBean(reply.GetJObject("video",null));
+                    /*{
+                         "video":{
+                                    "id":xxx,
+                                    "publishDate":"xxx",
+                                    "actors":"xxx",
+                                    "directors":"xxx",
+                                    "description":"xxx",
+                                    "score":"xxx",
+                                    "isFinish":true|false,
+                                    "title":"xxxx",
+                                    "newest_ep_index":"x",//更新到第n集
+                                    "playCount":0,//播放数量
+                                    "favoriteCount":0,//追番数量
+                                    "cover":"xxxx",
+                                },
+                         "resArr":[
+                                    {"id":xxx,"name":"xxx","title":"xxxx","cover":"xxx"},
+                                    {....},
+                                ],
+                          "comments":{
+                                    "total":xx,
+                                    "pageSize":xx,
+                                    "pageCount":xx,
+                                    "pageIndex":xx,
+                                    "list":[...]
+                                },
+                        "tagArr":["泡面","奇幻","校园"],
+                        "seasonVerArr":[
+                                {"id":0,"type":0,"name":"国际版"},
+                                {"id":0,"type":0,"name":"中文版"},
+                                {"id":0,"type":0,"name":"粤语版"},
+                            ]
+                     }*/
+                    _videoDetail = reply.GetJObject("video",new JSONObject());//new BangumiDetailsInfo.ResultBean(reply.GetJObject("video",null));
                     _videoComments = reply.GetJObject("comments",new JSONObject());
                     _videoTagArr = reply.GetJArray("tagArr",new JSONArray());
                     _videoSeasonVerArr = reply.GetJObjArray("seasonVerArr");
@@ -150,48 +175,17 @@ public class BangumiDetailsActivity extends RxBaseActivity {
                     Log.e(Const.LOG_TAG,throwable.getMessage());
                 });
     }
-    public void loadData2()
-    {
-        RetrofitHelper.getBangumiAPI()
-                .getBangumiDetails()
-                .compose(bindToLifecycle())
-                .doOnSubscribe(this::showProgressBar)
-                .flatMap(new Func1<BangumiDetailsInfo, Observable<BangumiDetailsRecommendInfo>>() {
-                    @Override
-                    public Observable<BangumiDetailsRecommendInfo> call(BangumiDetailsInfo bangumiDetailsInfo) {
-                        _videoDetail = bangumiDetailsInfo.getResult();
-                        return RetrofitHelper.getBangumiAPI().getBangumiDetailsRecommend();
-                    }
-                })
-                .compose(bindToLifecycle())
-                .map(bangumiDetailsRecommendInfo -> bangumiDetailsRecommendInfo.getResult().getList())
-                .flatMap(new Func1<List<BangumiDetailsRecommendInfo.ResultBean.ListBean>, Observable<BangumiDetailsCommentInfo>>() {
-                    @Override
-                    public Observable<BangumiDetailsCommentInfo> call(List<BangumiDetailsRecommendInfo.ResultBean.ListBean> listBeans) {
-                        bangumiRecommends.addAll(listBeans);
-                        return RetrofitHelper.getBiliAPI().getBangumiDetailsComments();
-                    }
-                })
-                .compose(bindToLifecycle())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(bangumiDetailsCommentInfo -> {
-                    hotComments.addAll(bangumiDetailsCommentInfo.getData().getHots());
-                    replies.addAll(bangumiDetailsCommentInfo.getData().getReplies());
-                    mPageInfo = bangumiDetailsCommentInfo.getData().getPage();
-                    finishTask();
-                }, throwable -> {
-                    LogUtil.all(throwable.getMessage());
-                    hideProgressBar();
-                });
-    }
 
     @SuppressLint("SetTextI18n")
     @Override
     public void finishTask() {
+        String title = JsonUtil.GetString(_videoDetail,"title","");
+        String cover = JsonUtil.GetZZXImageURL(_videoDetail,"cover",true);
+        int newest_ep_index = JsonUtil.GetInt(_videoDetail,"newest_ep_index",-1);
+        String description = JsonUtil.GetString(_videoDetail,"description","");
         //设置番剧封面
         Glide.with(this)
-                .load(_videoDetail.getCover(true))
+                .load(cover)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.bili_default_image_tv)
@@ -200,26 +194,26 @@ public class BangumiDetailsActivity extends RxBaseActivity {
 
         //设置背景高斯模糊图片
         Glide.with(this)
-                .load(_videoDetail.getCover(true))
+                .load(cover)
                 .bitmapTransform(new BlurTransformation(this))
                 .into(mBangumiBackgroundImage);
         //设置番剧标题
-        mBangumiTitle.setText(_videoDetail.getTitle());
+        mBangumiTitle.setText(title);
         //设置番剧更新状态
-        if (!_videoDetail.getFinish()) {
-            mUpdateIndex.setText("更新至第" + _videoDetail.getNewest_ep_index() + "话");
+        if (!JsonUtil.GetBool(_videoDetail,"isFinish",false)) {
+            mUpdateIndex.setText("更新至第" + newest_ep_index + "话");
             mBangumiUpdate.setText("连载中");
         } else {
-            mUpdateIndex.setText(_videoDetail.getNewest_ep_index() + "话全");
-            mBangumiUpdate.setText("已完结" + _videoDetail.getNewest_ep_index() + "话全");
+            mUpdateIndex.setText(newest_ep_index + "话全");
+            mBangumiUpdate.setText("已完结" + newest_ep_index + "话全");
         }
         //设置番剧播放和追番数量
         mBangumiPlay.setText(String.format("播放：%s  追番：%s",
-                NumberUtil.converString(_videoDetail.getPlayCount()),
-                NumberUtil.converString(_videoDetail.getfavoriteCount())
-                ));
+                JsonUtil.GetNumberFormat(_videoDetail,"playCount"),
+                JsonUtil.GetNumberFormat(_videoDetail,"favoriteCount"))
+                );
         //设置番剧简介
-        mBangumiIntroduction.setText(_videoDetail.getDescription());
+        mBangumiIntroduction.setText(description);
         //设置评论数量
         mBangumiCommentCount.setText("评论 第1话(" + JsonUtil.GetInt(_videoComments,"totoal",0) + ")");
         //设置标签布局
@@ -306,8 +300,10 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         mBangumiSelectionRecycler.scrollToPosition(_videoResourceArr.size() - 1);
         mBangumiDetailsSelectionAdapter.setOnItemClickListener((position, holder) -> {
             JSONObject videoRes = _videoResourceArr.get(position);//获取具体资源数据
-            if(!videoRes.has("description"))
-                JsonUtil.SetValue(videoRes,"description",_videoDetail.getDescription());
+            if(!videoRes.has("description")) {
+                String description = JsonUtil.GetString(_videoDetail,"description","");
+                JsonUtil.SetValue(videoRes, "description", description);
+            }
             mBangumiDetailsSelectionAdapter.notifyItemForeground(holder.getLayoutPosition());
 
             Intent intent = new Intent(this, VideoDetailsActivity.class);
@@ -377,14 +373,12 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         return true;
     }
 
-
     @Override
     public void showProgressBar() {
         mCircleProgressView.setVisibility(View.VISIBLE);
         mCircleProgressView.spin();
         mDetailsLayout.setVisibility(View.GONE);
     }
-
 
     @Override
     public void hideProgressBar() {
@@ -393,11 +387,10 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         mDetailsLayout.setVisibility(View.VISIBLE);
     }
 
-
-    public static void launch(Activity activity, int seasonId) {
+    public static void launch(Activity activity, long videoID) {
         Intent mIntent = new Intent(activity, BangumiDetailsActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putInt(ConstantUtil.EXTRA_BANGUMI_KEY, seasonId);
+        bundle.putLong(Const.MODULE_PARAMS, videoID);
         mIntent.putExtras(bundle);
         activity.startActivity(mIntent);
     }

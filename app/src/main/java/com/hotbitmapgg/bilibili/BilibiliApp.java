@@ -21,8 +21,6 @@ public class BilibiliApp extends Application {
         super.onCreate();
         mInstance = this;
         init();
-        //
-        AppContext.InternalTest();
     }
 
     private void init() {
@@ -34,6 +32,9 @@ public class BilibiliApp extends Application {
                         .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
                         .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
                         .build());
+
+        AppContext.Initialize(this);
+        AppContext.InternalTest();//测试代码
     }
 
     public static BilibiliApp getInstance() {

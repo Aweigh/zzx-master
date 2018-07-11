@@ -33,7 +33,7 @@ import com.hotbitmapgg.bilibili.base.RxBaseActivity;
 import com.hotbitmapgg.bilibili.entity.AppContext;
 import com.hotbitmapgg.bilibili.entity.ServerReply;
 import com.hotbitmapgg.bilibili.event.AppBarStateChangeEvent;
-import com.hotbitmapgg.bilibili.network.auxiliary.Const;
+import com.hotbitmapgg.bilibili.utils.Const;
 import com.hotbitmapgg.bilibili.utils.ConstantUtil;
 import com.hotbitmapgg.bilibili.utils.DisplayUtil;
 import com.hotbitmapgg.bilibili.utils.JsonUtil;

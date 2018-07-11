@@ -1,0 +1,13 @@
+/*
+自定义JSON文件,支持"//"单行注释或/* 多行注释,但是这些注释字符串必须在每行的起始位置，否则不认为是注释。
+本文件用于配置程序基础数据
+
+字段说明:
+ServerURL:服务器BaseURL,模拟器中调试不能用localhost,因为模拟器独立设备,172.16.31.54:3573 or www.zhizhuxun.com
+*/
+{
+  "AccountID":3,
+  "Channel":"test",
+  "UserAgent":"ZZX Android Client/2.1",
+  "ServerURL":"http://172.16.31.54:3573/"
+}

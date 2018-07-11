@@ -20,10 +20,4 @@ public class ApiConstants {
     public static final String VIP_BASE_URL = "http://vip.bilibili.com/";
     public static final String IM9_BASE_URL = "http://www.im9.com/";
     public static final String COMMON_UA_STR = "OhMyBiliBili Android Client/2.1 (100332338@qq.com)";
-
-    ///<summary>
-    /// 蜘蛛寻服务器BaseURL
-    /// 在模拟器中调试不要使用localhost,因为模拟器是另一台设备
-    ///</summary>
-    public static final String ZZX_BASE_URL = "http://172.16.31.52:3573/"; //"http://www.zhizhuxun.com/";
 }

@@ -2,6 +2,7 @@ package com.hotbitmapgg.bilibili.network;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.hotbitmapgg.bilibili.BilibiliApp;
+import com.hotbitmapgg.bilibili.entity.AppContext;
 import com.hotbitmapgg.bilibili.network.api.AccountService;
 import com.hotbitmapgg.bilibili.network.api.BangumiService;
 import com.hotbitmapgg.bilibili.network.api.BiliApiService;
@@ -19,7 +20,6 @@ import com.hotbitmapgg.bilibili.utils.CommonUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.Proxy;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
@@ -28,7 +28,6 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -49,15 +48,15 @@ public class RetrofitHelper {
 
     ///<summary>蜘蛛寻服务接口</summary>
     public static ZZXService getZZXAPI(){
-        return createApi(ZZXService.class,ApiConstants.ZZX_BASE_URL);
+        return createApi(ZZXService.class, AppContext.ServerBaseURL);
     }
 
     public static LiveService getLiveAPI() {
-        return createApi(LiveService.class, ApiConstants.ZZX_BASE_URL);//ApiConstants.LIVE_BASE_URL);//使用ZZX服务器替换
+        return createApi(LiveService.class, AppContext.ServerBaseURL);//ApiConstants.LIVE_BASE_URL);//使用ZZX服务器替换
     }
 
     public static BiliAppService getBiliAppAPI() {
-        return createApi(BiliAppService.class, ApiConstants.ZZX_BASE_URL);//, ApiConstants.APP_BASE_URL);//使用ZZX服务器替换
+        return createApi(BiliAppService.class,AppContext.ServerBaseURL);//, ApiConstants.APP_BASE_URL);//使用ZZX服务器替换
     }
 
     public static BiliApiService getBiliAPI() {
@@ -146,7 +145,8 @@ public class RetrofitHelper {
             Request originalRequest = chain.request();
             Request requestWithUserAgent = originalRequest.newBuilder()
                     .removeHeader("User-Agent")
-                    .addHeader("User-Agent", ApiConstants.COMMON_UA_STR)
+                    .addHeader("User-Agent", AppContext.UserAgent) //使用自定义UA
+                    .addHeader("Cookie",AppContext.HttpCookies)     //添加自定义cookie
                     .build();
             return chain.proceed(requestWithUserAgent);
         }

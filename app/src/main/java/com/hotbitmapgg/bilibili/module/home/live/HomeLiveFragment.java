@@ -12,12 +12,10 @@ import com.hotbitmapgg.bilibili.adapter.LiveAppIndexAdapter;
 import com.hotbitmapgg.bilibili.base.RxLazyFragment;
 import com.hotbitmapgg.bilibili.entity.ServerReply;
 import com.hotbitmapgg.bilibili.network.RetrofitHelper;
-import com.hotbitmapgg.bilibili.network.auxiliary.Const;
+import com.hotbitmapgg.bilibili.utils.Const;
 import com.hotbitmapgg.bilibili.utils.SnackbarUtil;
 import com.hotbitmapgg.bilibili.widget.CustomEmptyView;
 import com.hotbitmapgg.ohmybilibili.R;
-
-import java.io.IOException;
 
 import butterknife.BindView;
 import rx.android.schedulers.AndroidSchedulers;

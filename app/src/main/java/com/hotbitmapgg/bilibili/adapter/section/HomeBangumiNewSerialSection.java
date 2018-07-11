@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.gson.JsonObject;
+import com.hotbitmapgg.bilibili.entity.AppContext;
 import com.hotbitmapgg.bilibili.entity.bangumi.BangumiAppIndexInfo;
 import com.hotbitmapgg.bilibili.module.home.bangumi.BangumiDetailsActivity;
 import com.hotbitmapgg.bilibili.module.home.bangumi.NewBangumiSerialActivity;
@@ -38,12 +39,11 @@ import butterknife.ButterKnife;
 
 public class HomeBangumiNewSerialSection extends StatelessSection
 {
-    private Context mContext;
-    //private List<BangumiAppIndexInfo.ResultBean.SerializingBean> newBangumiSerials;
-    private String _headTitle = "新番连载";
-    private String _moreText = "所有连载";
-    private String _newest_ep_index_format = "更新至第%d话";
-    private String _watching_count_format = "%d人在看";
+    private Context mContext = null;
+    private String _headTitle = null;
+    private String _moreText = null;
+    private String _newest_ep_index_format = null;
+    private String _watching_count_format = null;
     private List<JSONObject> _itemArr = null;
 
     public HomeBangumiNewSerialSection(Context context,JSONObject cfg)
@@ -54,10 +54,6 @@ public class HomeBangumiNewSerialSection extends StatelessSection
         {
             /*文本信息配置cfg==>
             {
-            "title":"xxxx",
-            "moreText":"xxxx",
-            "newest_ep_index_format":"xxxx",
-            "watching_count_format":"xxxx",
             "list":[{
                   "id":"xxx",
                   "title":"xxx",
@@ -66,12 +62,13 @@ public class HomeBangumiNewSerialSection extends StatelessSection
                   "desc":"xxx",
                   "link":"xxx",
                   "watching_count":-1
-                 }]
+                 }],
+              "count":xxx
              }*/
-            _headTitle = JsonUtil.GetString(cfg,"title","正在热播");
-            _moreText = JsonUtil.GetString(cfg,"moreText","更多..");
-            _newest_ep_index_format = JsonUtil.GetString(cfg,"newest_ep_index_format","更新至第%d话");
-            _watching_count_format = JsonUtil.GetString(cfg,"watching_count_format","%d人在看");
+            _headTitle = JsonUtil.GetString(cfg,"title","新番连载");
+            _moreText = JsonUtil.GetString(AppContext.VideoPageCfg,"more_text","更多..");
+            _newest_ep_index_format = JsonUtil.GetString(AppContext.VideoPageCfg,"newest_ep_index_format","更新至第%d集");
+            _watching_count_format = JsonUtil.GetString(AppContext.VideoPageCfg,"watching_count_format","%d人在看");
 
             _itemArr = JsonUtil.GetJObjArray(cfg,"list");//hotItems.list
             if(_itemArr == null) _itemArr = new ArrayList<JSONObject>();
@@ -99,9 +96,9 @@ public class HomeBangumiNewSerialSection extends StatelessSection
 
         long id = JsonUtil.GetInt64(vitem,"id",0x0);
         String title = JsonUtil.GetString(vitem,"title","");
-        String cover = PathUtil.GetZZXImageURL(vitem.optString("cover"),true);
-        int watching_count = vitem.optInt("watching_count",-1);
-        int newest_ep_index = vitem.optInt("newest_ep_index",-1);
+        String cover = JsonUtil.GetZZXImageURL(vitem,"cover",true);
+        int watching_count = JsonUtil.GetInt(vitem,"watching_count",-1);
+        int newest_ep_index = JsonUtil.GetInt(vitem,"newest_ep_index",-1);
 
         //从网络下载图片并加载到控件中
         Glide.with(mContext)
@@ -124,7 +121,7 @@ public class HomeBangumiNewSerialSection extends StatelessSection
         }
         //点击视频项跳转到BangumiDetailsActivity页面
         itemViewHolder.mCardView.setOnClickListener(v -> BangumiDetailsActivity.launch(
-                (Activity) mContext, serializingBean.getSeason_id()));
+                (Activity) mContext, id));
     }
 
     @Override

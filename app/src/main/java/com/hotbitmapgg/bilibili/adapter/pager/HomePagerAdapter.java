@@ -1,33 +1,15 @@
 package com.hotbitmapgg.bilibili.adapter.pager;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.util.Log;
 
-import com.hotbitmapgg.bilibili.entity.ServerReply;
-import com.hotbitmapgg.bilibili.entity.video.VideoCommentInfo;
-import com.hotbitmapgg.bilibili.module.home.attention.HomeAttentionFragment;
 import com.hotbitmapgg.bilibili.module.home.bangumi.HomeBangumiFragment;
-import com.hotbitmapgg.bilibili.module.home.discover.HomeDiscoverFragment;
-import com.hotbitmapgg.bilibili.module.home.live.HomeLiveFragment;
-import com.hotbitmapgg.bilibili.module.home.recommend.HomeRecommendedFragment;
-import com.hotbitmapgg.bilibili.module.home.region.HomeRegionFragment;
-import com.hotbitmapgg.bilibili.network.RetrofitHelper;
-import com.hotbitmapgg.bilibili.network.auxiliary.Const;
 import com.hotbitmapgg.bilibili.utils.JsonUtil;
-import com.hotbitmapgg.ohmybilibili.R;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * 主界面Fragment模块Adapter
