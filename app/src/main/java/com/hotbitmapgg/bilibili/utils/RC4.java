@@ -16,19 +16,29 @@ public class RC4 {
     /// <returns>返回加密之后的缓冲区</returns>
     public byte[] Encrypt(String text)
     {
-        if (text == null || _password == null) {
-            return null;
+        try
+        {
+            if (text == null || _password == null)  return null;
+
+            byte b_data[] = text.getBytes(Const.UTF8);
+            return RC4Base(b_data, _password);
         }
-        byte b_data[] = text.getBytes();
-        return RC4Base(b_data, _password);
+        catch (Exception e)
+        {
+            return  null;
+        }
     }
     /// <summary>
     /// 加密数据并进行base64编码
     /// </summary>
     public String EncryptToBase64String(String text)
     {
+        /*
+        用Base64编码，当字符串过长（一般超过76）时会自动在中间加一个换行符，字符串最后也会加一个换行符。导致和其他模块对接时结果不一致。
+        解决方法：将Base64.DEFAULT换成Base64.NO_WRAP
+        */
         byte[] buffer = Encrypt(text);
-        return Base64.encodeToString(buffer, Base64.DEFAULT);
+        return Base64.encodeToString(buffer, Base64.NO_WRAP);
     }
     // <summary>
     /// 解密给定的加密数据
@@ -42,17 +52,19 @@ public class RC4 {
         return asString(RC4Base(stream, _password));
     }
     /// <summary>
-    /// 将讲过base64编码之后的
+    /// 将经过base64编码之后的加密字符串进行解密
     /// </summary>
+    /// <param name="text">加密数据经过Base64编码的密文字符串</param>
     public String DecryptFromBase64String(String text)
     {
-        byte[] enstream = Base64.decode(text, Base64.DEFAULT);
+        byte[] enstream = Base64.decode(text, Base64.NO_WRAP);
         return  Decrypt(enstream);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////
     /// internal
-    private static String asString(byte[] buf) {
+    private static String asString(byte[] buf)
+    {
         StringBuffer strbuf = new StringBuffer(buf.length);
         for (int i = 0; i < buf.length; i++) {
             strbuf.append((char) buf[i]);

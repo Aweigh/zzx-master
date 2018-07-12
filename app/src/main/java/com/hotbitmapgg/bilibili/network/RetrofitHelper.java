@@ -17,6 +17,7 @@ import com.hotbitmapgg.bilibili.network.api.VipService;
 import com.hotbitmapgg.bilibili.network.api.ZZXService;
 import com.hotbitmapgg.bilibili.network.auxiliary.ApiConstants;
 import com.hotbitmapgg.bilibili.utils.CommonUtil;
+import com.hotbitmapgg.bilibili.utils.GZip;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,19 +25,19 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
 import okhttp3.CacheControl;
+import okhttp3.Headers;
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by hcc on 16/8/4 21:18
- * 100332338@qq.com
- * <p/>
  * Retrofit帮助类
  */
 public class RetrofitHelper {
@@ -111,7 +112,13 @@ public class RetrofitHelper {
     /**
      * 初始化OKHttpClient,设置缓存,设置超时时间,设置打印日志,设置UA拦截器
      */
-    private static void initOkHttpClient() {
+    private static void initOkHttpClient()
+    {
+        /*by="Aweigh" date="2018/7/12 16:28"
+          Okhttp3是支持gzip自动解压的,但是自动解压有一个条件就是不能添加"Accept-Encoding"头,
+          从okhttp3源码中BridgeInterceptor类有一个transparentGzip表示用来表示是否需要自动解压gzip数据,但transparentGzip只有当HTTP头没有"Accept-Encoding"时才被设置为true.
+          当transparentGzip值为true且服务器Response头部包含"Content-Encoding:gzip"则开始解压返回的数据
+        */
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         if (mOkHttpClient == null) {
@@ -128,7 +135,7 @@ public class RetrofitHelper {
                             .connectTimeout(30, TimeUnit.SECONDS)
                             .writeTimeout(20, TimeUnit.SECONDS)
                             .readTimeout(20, TimeUnit.SECONDS)
-                            .addInterceptor(new UserAgentInterceptor())
+                            .addInterceptor(new ReqHeaderInterceptor())
                             .build();
                 }
             }
@@ -136,17 +143,20 @@ public class RetrofitHelper {
     }
 
 
-    /**
-     * 添加UA拦截器，B站请求API需要加上UA才能正常使用
+    /**HTTP请求头部拦截器
+     * 1.添加UA拦截器，B站请求API需要加上UA才能正常使用
+     * 2.添加cookie
      */
-    private static class UserAgentInterceptor implements Interceptor {
+    private static class ReqHeaderInterceptor implements Interceptor {
         @Override
-        public Response intercept(Chain chain) throws IOException {
+        public Response intercept(Chain chain) throws IOException
+        {
             Request originalRequest = chain.request();
             Request requestWithUserAgent = originalRequest.newBuilder()
                     .removeHeader("User-Agent")
-                    .addHeader("User-Agent", AppContext.UserAgent) //使用自定义UA
-                    .addHeader("Cookie",AppContext.HttpCookies)     //添加自定义cookie
+                    .removeHeader("Accept-Encoding")   //要开启自动解压gzip数据就不能有这个头信息,此时如果服务器返回"Content-Encoding:gzip"则将自动解压
+                    .addHeader("User-Agent", AppContext.HttpUserAgent)    //使用自定义UA
+                    .addHeader("Cookie",AppContext.HttpCookies)            //添加自定义cookie
                     .build();
             return chain.proceed(requestWithUserAgent);
         }

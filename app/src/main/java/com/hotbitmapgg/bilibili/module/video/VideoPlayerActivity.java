@@ -165,7 +165,7 @@ public class VideoPlayerActivity extends RxBaseActivity implements DanmukuSwitch
     {
         int rid = JsonUtil.GetInt(_resource,"id",0);
         RetrofitHelper.getZZXAPI()
-                .getResourceStream(rid, AppContext.AccountID)
+                .getResourceStream(rid)
                 .compose(this.bindToLifecycle())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

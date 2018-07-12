@@ -206,7 +206,7 @@ public class VideoDetailsActivity extends RxBaseActivity {
     @Override
     public void loadData() {
         RetrofitHelper.getZZXAPI()
-                .getResourceDetail(_id,AppContext.AccountID)
+                .getResourceDetail(_id)
                 .compose(this.bindToLifecycle())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

@@ -3,11 +3,15 @@
 本文件用于配置程序基础数据
 
 字段说明:
-ServerURL:服务器BaseURL,模拟器中调试不能用localhost,因为模拟器独立设备,172.16.31.54:3573 or www.zhizhuxun.com
+AccountID：app客户端系统账号ID
+Channel：渠道号
+ServerURL：服务器BaseURL,模拟器中调试不能用localhost,因为模拟器独立设备,172.16.31.54:3573 or www.zhizhuxun.com
+HttpUserAgent：表示向ZZX服务器发起HTTP请求时携带的UserAgent值
+HttpAcceptEncoding：表示向ZZX服务器发起HTTP请求时接收的编码类型,例如:空值:"",压缩类型:"gzip"
 */
 {
   "AccountID":3,
   "Channel":"test",
-  "UserAgent":"ZZX Android Client/2.1",
-  "ServerURL":"http://172.16.31.54:3573/"
+  "ServerURL":"http://172.16.31.54:3573/",
+  "HttpUserAgent":"ZZX Android Client/2.1"
 }

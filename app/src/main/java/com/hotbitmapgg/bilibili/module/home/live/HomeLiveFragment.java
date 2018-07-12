@@ -108,17 +108,6 @@ public class HomeLiveFragment extends RxLazyFragment {
                 }, throwable -> initEmptyView());
     }
 
-    private  void awTest(){
-        RetrofitHelper.getZZXAPI().getConfiguration(103).
-                compose(bindToLifecycle()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()) .
-                subscribe(response -> {
-                    ServerReply reply = new ServerReply(response);
-                    int flag = reply.Flag();
-                },throwable -> {
-                    Log.e(Const.LOG_TAG,throwable.getMessage());
-                });
-    }
-
     private void initEmptyView() {
         mSwipeRefreshLayout.setRefreshing(false);
         mCustomEmptyView.setVisibility(View.VISIBLE);

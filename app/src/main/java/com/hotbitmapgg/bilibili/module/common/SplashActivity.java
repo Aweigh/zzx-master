@@ -65,7 +65,7 @@ public class SplashActivity extends RxActivity {
     */
     private void loadData()
     {
-        RetrofitHelper.getZZXAPI().getConfiguration(AppContext.AccountID) .
+        RetrofitHelper.getZZXAPI().getConfiguration() .
                 compose(bindToLifecycle()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()) .
                 subscribe(response -> {
                     ServerReply reply = new ServerReply(response);
