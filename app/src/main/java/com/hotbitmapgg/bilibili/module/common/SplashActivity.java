@@ -25,8 +25,10 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 ///<summary>APP启动页界面,即启动时的动画或广告页面</summary>
-public class SplashActivity extends RxActivity {
+public class SplashActivity extends RxActivity
+{
     private Unbinder bind;
+    private int _jobs = 0x0;//表示初始化工作是否完成,bit0表示loadData是否完成,bit1表示启动画面2秒是否到时
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,16 +44,19 @@ public class SplashActivity extends RxActivity {
         Observable.timer(2000, TimeUnit.MILLISECONDS)
                 .compose(bindToLifecycle())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(aLong -> finishTask());
+                .subscribe(aLong -> finishTask(0x1));//2s启动画面结束
     }
-
-    private void finishTask() {
+    private void finishTask(int job){
+        /*
         boolean isLogin = PreferenceUtil.getBoolean(ConstantUtil.KEY, false);
         if (isLogin) {//如果已经登录了则进入主界面
             startActivity(new Intent(SplashActivity.this, MainActivity.class));
         } else {//转到登录界面,随便输入账号和密码都可以
             startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-        }
+        }*/
+        _jobs |= job;
+        if(_jobs!=0x3) return;//还有工作没完成继续等待
+        startActivity(new Intent(SplashActivity.this, MainActivity.class));
         SplashActivity.this.finish();
     }
 
@@ -75,8 +80,10 @@ public class SplashActivity extends RxActivity {
                     }
                     AppContext.CatalogArr = reply.GetJObjArray("CatalogArr");
                     AppContext.VideoPageCfg = reply.GetJObject("VideoPageCfg",new JSONObject());
+                    finishTask(0x2);//加载数据完成
                 },throwable -> {
                     Log.e(Const.LOG_TAG,throwable.getMessage());
+                    finishTask(0x2);//加载数据完成
                 });
     }
 }

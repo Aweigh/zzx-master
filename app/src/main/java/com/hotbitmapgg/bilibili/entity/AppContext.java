@@ -6,6 +6,7 @@ import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 
+import com.hotbitmapgg.bilibili.utils.CommonUtil;
 import com.hotbitmapgg.bilibili.utils.Const;
 import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.utils.MD5;
@@ -20,7 +21,7 @@ import java.util.List;
 public class AppContext
 {
     ///保存在本地配置文件(configuration.json)中
-    public static long AccountID = 0;//app系统账号ID
+    public static String Account = null;//app系统账号信息
     public static String Channel = null;//渠道号
     public static String ServerBaseURL = null;//蜘蛛寻服务器BaseURL,在模拟器中调试不要使用localhost,因为模拟器是另一台设备
     public static String HttpUserAgent = null;//HTTP请求的UA
@@ -45,6 +46,7 @@ public class AppContext
     public static JSONObject VideoPageCfg = null;
 
     ///运行时生成数据
+    public static long ClientID = 0x0;//用于表示当前客户端的ID
     public static String HttpCookies = null;//HTTP请求的Cookie
     public static String ClientSecretKey = null;//客户端密钥(每个客户端拥有不同密钥),根据客户端设备信息生成的。
     /*设备信息
@@ -53,6 +55,7 @@ public class AppContext
         "brand":"xxx",//手机品牌
         "andrID":"xxxxx",//在设备首次启动时,系统会随机生成一个64位的数字,缺点是设备恢复出厂设置会重置,不需要权限
         "serialNo":"xxxxx",//Android系统2.3版本以上可以通过Build.SERIAL获取，且非手机设备也可以，不需要权限，通用性也较高，但我测试发现红米手机返回的是0123456789ABCDEF 明显是一个顺序的非随机字符串，也不一定靠谱。
+        "ver":xxx,//客户端版本号VersionCode
       }*/
     public static JSONObject DeviceInfo = null;//设备信息
 
@@ -62,10 +65,10 @@ public class AppContext
         try
         {
             JSONObject configure = JsonUtil.ParseAssertFile(context.getAssets(),"configuration.json",new JSONObject());
-            AccountID = JsonUtil.GetInt64(configure,"AccountID",Const.ACCOUNT_UNKNWON);
-            Channel = JsonUtil.GetDefStrIfEmpty(configure,"Channel",Const.EMPTY);
-            ServerBaseURL = JsonUtil.GetDefStrIfEmpty(configure,"ServerURL",Const.ZZX_SERVER_URL);
-            HttpUserAgent = JsonUtil.GetDefStrIfEmpty(configure,"HttpUserAgent",Const.EMPTY);
+            Account = JsonUtil.GetString(configure,"Account",Const.EMPTY);
+            Channel = JsonUtil.GetString(configure,"Channel",Const.EMPTY);
+            ServerBaseURL = JsonUtil.GetString(configure,"ServerURL",Const.ZZX_SERVER_URL);
+            HttpUserAgent = JsonUtil.GetString(configure,"HttpUserAgent",Const.EMPTY);
 
             /*by="Aweigh" date="2018/7/11 16:51"
               这里获取设备信息,不再获取手机IMEI号和手机IMSI号,因为这两个信息需要需要android.permission.READ_PHONE_STATE权限，它在6.0+系统中是需要动态申请的。
@@ -74,25 +77,23 @@ public class AppContext
             String serialNum = Build.SERIAL;
             String androidID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
             ClientSecretKey = MD5.Hash(androidID +"##" + serialNum);//通过设备信息计算出客户端密钥
+            ClientID = CRC32.HashByText(androidID +"##" + serialNum);//通过设备信息计算出客户端ID
 
             DeviceInfo = new JSONObject();
             DeviceInfo.put("model",Build.MODEL);
             DeviceInfo.put("brand",Build.BRAND);
-            DeviceInfo.put("andrID",androidID);
-            DeviceInfo.put("serialNo",serialNum);
+            DeviceInfo.put("cid",ClientID);
+            DeviceInfo.put("ver", CommonUtil.getVersionCode(context));
             String deviceInfoStr = DeviceInfo.toString();
-            long deviceInfoCRC = CRC32.HashByText(deviceInfoStr);//设备信息校验码
 
             /*Token信息
               {
-                "aid":"xxx",//app系统账号ID
+                "account":"xxx",//app系统账号,密文数据
                 "channel":"xxx",//渠道号
-                "ussCRC":xxxxx,//ZZXUSS信息校验码
             }*/
             JSONObject stoken = new JSONObject();
-            stoken.put("aid",AccountID);
+            stoken.put("account",Account);
             stoken.put("channel",Channel);
-            stoken.put("ussCRC",deviceInfoCRC);
             String stokenStr = stoken.toString();
 
             RC4 rc4 = new RC4(Const.DEFAULT_RC4_KEY);
@@ -101,7 +102,7 @@ public class AppContext
 
             Log.d(Const.LOG_TAG,
                     "AppContext.Initialize=>{\n" +
-                            "\tAccountID:" + AccountID + "\n" +
+                            "\tAccount:" + Account + "\n" +
                             "\tChannel:\"" + Channel + "\"\n" +
                             "\tSeverBaseURL:\"" + ServerBaseURL + "\"\n" +
                             "\tHttpUserAgent:\"" + HttpUserAgent + "\"\n" +

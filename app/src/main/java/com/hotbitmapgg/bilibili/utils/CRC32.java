@@ -96,7 +96,7 @@ public class CRC32 {
         {
             dwCrc32 = HashByByte(b,dwCrc32);
         }
-        return dwCrc32 & 0x0FFFFFFFF;//转为Unsigned无符号数据类型
+        return dwCrc32 & 0xFFFFFFFFL;//转为Unsigned无符号数据类型,0x值加L才会被认为是long类型，不然就是int导致为负数
     }
     public static long HashByText(String text)
     {

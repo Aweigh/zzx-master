@@ -1,32 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <!--测试发现,如果group控件的id不为空则会在再组上下自动加入分割线，反之没有id属性则没有分割线或边框 -->
+    <group android:id="@+id/group_00"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/item_home"
             android:checked="true"
             android:icon="@drawable/ic_home_black_24dp"
             android:title="@string/item_home" />
-
-        <item
-            android:id="@+id/item_vip"
-            android:checkable="false"
-            android:icon="@drawable/ic_nav_vip"
-            android:title="@string/item_vip" />
-
-        <item
-            android:id="@+id/item_download"
-            android:checkable="false"
-            android:icon="@drawable/ic_file_download_black_24dp"
-            android:title="@string/item_downloaded" />
-
-
-    </group>
-
-
-    <group
-        android:id="@+id/group_user"
-        android:checkableBehavior="single">
 
         <item
             android:id="@+id/item_favourite"
@@ -38,34 +20,15 @@
             android:icon="@drawable/ic_history_black_24dp"
             android:title="@string/item_history" />
 
-
         <item
-            android:id="@+id/item_group"
-            android:icon="@drawable/ic_people_black_24dp"
-            android:title="@string/item_group" />
-        <item
-            android:id="@+id/item_tracker"
-            android:icon="@drawable/ic_account_balance_wallet_black_24dp"
-            android:title="@string/item_tracker" />
+            android:id="@+id/item_download"
+            android:checkable="false"
+            android:icon="@drawable/ic_file_download_black_24dp"
+            android:title="@string/item_downloaded" />
 
     </group>
 
-
     <group android:checkableBehavior="single">
-
-
-        <item
-            android:id="@+id/item_theme"
-            android:checkable="false"
-            android:icon="@drawable/ic_color_lens_black_24dp"
-            android:title="@string/item_theme" />
-
-        <item
-            android:id="@+id/item_app"
-            android:checkable="false"
-            android:icon="@drawable/ic_shop_black_24dp"
-            android:title="@string/item_app" />
-
 
         <item
             android:id="@+id/item_settings"

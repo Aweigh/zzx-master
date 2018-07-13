@@ -112,7 +112,6 @@ public class MainActivity extends RxBaseActivity implements NavigationView.OnNav
         }
     }
 
-
     /**
      * 日夜间模式切换
      */
@@ -143,10 +142,6 @@ public class MainActivity extends RxBaseActivity implements NavigationView.OnNav
                 // 离线缓存
                 startActivity(new Intent(MainActivity.this, OffLineDownloadActivity.class));
                 return true;
-            case R.id.item_vip:
-                //大会员
-                startActivity(new Intent(MainActivity.this, VipActivity.class));
-                return true;
             case R.id.item_favourite:
                 // 我的收藏
                 changeFragmentIndex(item, 1);
@@ -154,20 +149,6 @@ public class MainActivity extends RxBaseActivity implements NavigationView.OnNav
             case R.id.item_history:
                 // 历史记录
                 changeFragmentIndex(item, 2);
-                return true;
-            case R.id.item_group:
-                // 关注的人
-                changeFragmentIndex(item, 3);
-                return true;
-            case R.id.item_tracker:
-                // 我的钱包
-                changeFragmentIndex(item, 4);
-                return true;
-            case R.id.item_theme:
-                // 主题选择
-                return true;
-            case R.id.item_app:
-                // 应用推荐
                 return true;
             case R.id.item_settings:
                 // 设置中心
