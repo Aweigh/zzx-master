@@ -14,4 +14,6 @@ public class Const {
     public static final String COOKIE_STOKEN = "STOKEN";
 
     public static final String UTF8 = "UTF-8";//utf-8编码或字符集名称
+
+    public static final int MillSecond = 1000;//1秒钟的毫秒数
 }

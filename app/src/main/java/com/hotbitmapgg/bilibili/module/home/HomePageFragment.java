@@ -74,7 +74,7 @@ public class HomePageFragment extends RxLazyFragment {
         mSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                TotalStationSearchActivity.launch(getActivity(), query);
+                TotalStationSearchActivity.launch(getActivity(), query);//全站搜索界面
                 return false;
             }
 
@@ -99,9 +99,10 @@ public class HomePageFragment extends RxLazyFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
+        //创建页面菜单项(游戏中心,离线缓存,搜索)，对应menu_main.xml
         inflater.inflate(R.menu.menu_main, menu);
         // 设置SearchViewItemMenu
-        MenuItem item = menu.findItem(R.id.id_action_search);
+        MenuItem item = menu.findItem(R.id.id_action_search);//将搜索按钮和搜索页面绑定在一起
         mSearchView.setMenuItem(item);
     }
 
@@ -109,10 +110,10 @@ public class HomePageFragment extends RxLazyFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.id_action_game:
+/*            case R.id.id_action_game:
                 //游戏中心
                 startActivity(new Intent(getActivity(), GameCentreActivity.class));
-                break;
+                break;*/
             case R.id.id_action_download:
                 //离线缓存
                 startActivity(new Intent(getActivity(), OffLineDownloadActivity.class));

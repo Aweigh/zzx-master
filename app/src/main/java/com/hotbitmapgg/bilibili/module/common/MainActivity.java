@@ -99,8 +99,8 @@ public class MainActivity extends RxBaseActivity implements NavigationView.OnNav
         ImageView mSwitchMode = (ImageView) headerView.findViewById(R.id.iv_head_switch_mode);
         //设置头像
         mUserAvatarView.setImageResource(R.drawable.ic_hotbitmapgg_avatar);
-        //设置用户名 签名
-        mUserName.setText(getResources().getText(R.string.hotbitmapgg));
+        //设置用户名签名,没用登录
+        mUserName.setText("点击头像登录");//getResources().getText(R.string.hotbitmapgg));
         mUserSign.setText(getResources().getText(R.string.about_user_head_layout));
         //设置日夜间模式切换
         mSwitchMode.setOnClickListener(v -> switchNightMode());

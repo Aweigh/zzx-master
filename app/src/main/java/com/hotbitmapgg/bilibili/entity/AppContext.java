@@ -25,6 +25,7 @@ public class AppContext
     public static String Channel = null;//渠道号
     public static String ServerBaseURL = null;//蜘蛛寻服务器BaseURL,在模拟器中调试不要使用localhost,因为模拟器是另一台设备
     public static String HttpUserAgent = null;//HTTP请求的UA
+    public static int SplashDuration = 0;//启动页面或广告页面的停留时间(ms)
 
     ///从网络获取的数据
     /*类目对象列表,在SplashActivity.java->onCreate->loadData中被赋值
@@ -69,6 +70,7 @@ public class AppContext
             Channel = JsonUtil.GetString(configure,"Channel",Const.EMPTY);
             ServerBaseURL = JsonUtil.GetString(configure,"ServerURL",Const.ZZX_SERVER_URL);
             HttpUserAgent = JsonUtil.GetString(configure,"HttpUserAgent",Const.EMPTY);
+            SplashDuration = JsonUtil.GetInt(configure,"SplashDuration",3*Const.MillSecond);
 
             /*by="Aweigh" date="2018/7/11 16:51"
               这里获取设备信息,不再获取手机IMEI号和手机IMSI号,因为这两个信息需要需要android.permission.READ_PHONE_STATE权限，它在6.0+系统中是需要动态申请的。

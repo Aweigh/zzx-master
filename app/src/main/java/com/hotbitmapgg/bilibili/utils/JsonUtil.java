@@ -224,4 +224,9 @@ public class JsonUtil
             return false;
         }
     }
+    public static int GetArrayCount(JSONObject obj,String key){
+        if(obj==null|| TextUtils.isEmpty(key)) return -1;
+        JSONArray arr = obj.optJSONArray(key);
+        return arr == null ? -1 :arr.length();
+    }
 }

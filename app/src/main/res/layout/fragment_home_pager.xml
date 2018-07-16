@@ -47,13 +47,13 @@
                         app:border_color="@color/white"
                         app:border_width="@dimen/circle_default_width" />
 
-                    <!--AWEIGH:显示文本"hotBitmapGG"-->
+                    <!--AWEIGH:显示用户名称,原始设置@string/hotbitmapgg即"hotBitmapGG"-->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/default_general_margin"
                         android:maxLines="1"
-                        android:text="@string/hotbitmapgg"
+                        android:text=""
                         android:textColor="@color/white"
                         android:textSize="@dimen/default_medium_text_size" />
 

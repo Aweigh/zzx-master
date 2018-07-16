@@ -186,7 +186,7 @@ public class HomeBangumiFragment extends RxLazyFragment {
 
         mSectionedRecyclerViewAdapter.addSection(new HomeBangumiItemSection(getActivity()));
 
-        if(_hotItems!=null && _hotItems.has("list"))
+        if(JsonUtil.GetArrayCount(_hotItems,"list")>0)
         {//构建"新番连载"或"正在热播"区域
             JsonUtil.CopyAttribute(AppContext.VideoPageCfg,"hot_title",_hotItems,"title");
             HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), _hotItems);
@@ -196,14 +196,14 @@ public class HomeBangumiFragment extends RxLazyFragment {
         if (bangumibobys!=null && !bangumibobys.isEmpty())
             mSectionedRecyclerViewAdapter.addSection(new HomeBangumiBobySection(getActivity(), bangumibobys));
 
-        if(_lastestItems!=null && _lastestItems.has("list"))
+        if(JsonUtil.GetArrayCount(_lastestItems,"list")>0)
         {//构建"x月新番"或"最新上映"区域
             JsonUtil.CopyAttribute(AppContext.VideoPageCfg,"latest_title",_lastestItems,"title");
             HomeBangumiNewSerialSection section = new HomeBangumiNewSerialSection(getActivity(), _lastestItems);
             mSectionedRecyclerViewAdapter.addSection(section);
         }
 
-        if(_recommendItems!=null && _recommendItems.has("list"))
+        if(JsonUtil.GetArrayCount(_recommendItems,"list")>0)
         {//构建"番剧推荐"或"热门/推荐"区域
             JsonUtil.CopyAttribute(AppContext.VideoPageCfg,"recommend_title",_recommendItems,"title");
             JSONArray itemArr = _recommendItems.optJSONArray("list");//recommendItems.list

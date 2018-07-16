@@ -11,11 +11,12 @@ Account：表示账号相关数据,格式:{"id":xxx,"name":"xxxx"}
 Channel：渠道号
 ServerURL：服务器BaseURL,模拟器中调试不能用localhost,因为模拟器独立设备,172.16.31.54:3573 or www.zhizhuxun.com
 HttpUserAgent：表示向ZZX服务器发起HTTP请求时携带的UserAgent值
-HttpAcceptEncoding：表示向ZZX服务器发起HTTP请求时接收的编码类型,例如:空值:"",压缩类型:"gzip"
+SplashDuration：表示启动页面或广告页面的停留时间(ms)
 */
 {
   "Account":"TY4Iu+7H8jMP8HHeMHdvenc5eNWhMWAj",
   "Channel":"test",
-  "ServerURL":"http://172.16.31.54:3573/",
-  "HttpUserAgent":"ZZX Android Client/2.1"
+  "ServerURL":"http://172.16.31.51:3573/",
+  "HttpUserAgent":"ZZX Android Client",
+  "SplashDuration":3000
 }
