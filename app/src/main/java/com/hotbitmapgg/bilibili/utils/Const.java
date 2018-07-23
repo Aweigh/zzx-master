@@ -12,8 +12,15 @@ public class Const {
     //如下cookie由APP客户端创建,提交给服务器时是经过RC4+Base64编码后的密文数据
     public static final String COOKIE_ZZXUSS = "ZZXUSS";
     public static final String COOKIE_STOKEN = "STOKEN";
+    public static final int C_ZZXUSS = 0x1;//是否包含ZZXUSS cookie标志位
+    public static final int C_STOKEN = 0x2;//是否包含STOKEN cookie标志位
 
     public static final String UTF8 = "UTF-8";//utf-8编码或字符集名称
 
     public static final int MillSecond = 1000;//1秒钟的毫秒数
+
+    //项类型
+    public static final int ITEM_UNKNOWN = 0x0;//未知
+    public static final int ITEM_VIDEO = 0x1;//视频
+    public static final int ITEM_RESOURCE = 0x2;//资源
 }

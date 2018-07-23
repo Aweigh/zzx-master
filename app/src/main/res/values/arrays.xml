@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- AW:测试发现该文件是作为搜索建议的数据库使用,主界面中的搜索按钮(R.id.id_action_search) -->
 <resources>
     <string-array name="query_suggestions">
         <item>re:从零开始的异世界生活</item>

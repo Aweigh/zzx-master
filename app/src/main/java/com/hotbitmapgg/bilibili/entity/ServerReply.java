@@ -23,7 +23,8 @@ public class ServerReply
     {
         try
         {
-            _inner = new JSONObject(response.string());
+            String text = response.string();
+            _inner = new JSONObject(text);
             _flag = _inner.getInt("Flag");
             _message = _inner.getString("Message");
         }
@@ -74,5 +75,10 @@ public class ServerReply
     public List<JSONObject> GetJObjArray(String key)
     {
         return JsonUtil.GetJObjArray(_inner,key);
+    }
+    public List<String> GetStringList(String key)
+    {
+        JSONArray suggestionArr = GetJArray(key,null);
+        return JsonUtil.ToStringList(suggestionArr,null);
     }
 }

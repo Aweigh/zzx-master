@@ -14,6 +14,7 @@ import com.hotbitmapgg.bilibili.adapter.helper.HeaderViewRecyclerAdapter;
 import com.hotbitmapgg.bilibili.base.RxLazyFragment;
 import com.hotbitmapgg.bilibili.entity.search.SearchBangumiInfo;
 import com.hotbitmapgg.bilibili.network.RetrofitHelper;
+import com.hotbitmapgg.bilibili.utils.Const;
 import com.hotbitmapgg.bilibili.utils.ConstantUtil;
 import com.hotbitmapgg.ohmybilibili.R;
 
@@ -26,9 +27,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
- * Created by hcc on 16/8/29 21:08
- * 100332338@qq.com
- * <p/>
  * 番剧搜索内容列表界面
  */
 public class BangumiResultsFragment extends RxLazyFragment {
@@ -47,14 +45,13 @@ public class BangumiResultsFragment extends RxLazyFragment {
     private HeaderViewRecyclerAdapter mHeaderViewRecyclerAdapter;
     private List<SearchBangumiInfo.DataBean.ItemsBean> bangumis = new ArrayList<>();
 
-    public static BangumiResultsFragment newInstance(String content) {
+    public static BangumiResultsFragment newInstance(String keyword) {
         BangumiResultsFragment fragment = new BangumiResultsFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(ConstantUtil.EXTRA_CONTENT, content);
+        bundle.putString(Const.MODULE_PARAMS, keyword);
         fragment.setArguments(bundle);
         return fragment;
     }
-
 
     @Override
     public int getLayoutResId() {
@@ -63,7 +60,7 @@ public class BangumiResultsFragment extends RxLazyFragment {
 
     @Override
     public void finishCreateView(Bundle state) {
-        content = getArguments().getString(ConstantUtil.EXTRA_CONTENT);
+        content = getArguments().getString(Const.MODULE_PARAMS);
         mLoadingView.setImageResource(R.drawable.anim_search_loading);
         mAnimationDrawable = (AnimationDrawable) mLoadingView.getDrawable();
         showSearchAnim();

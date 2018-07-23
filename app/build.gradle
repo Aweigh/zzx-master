@@ -18,7 +18,7 @@ android {
     buildToolsVersion '27.0.3'
 
     defaultConfig {
-        applicationId "com.hotbitmapgg.ohmybilibili"
+        applicationId "com.pointnine.zhizhuxun"//"com.hotbitmapgg.ohmybilibili"
         minSdkVersion 21
         targetSdkVersion 25
         versionCode props.getAt("versionCode") as int

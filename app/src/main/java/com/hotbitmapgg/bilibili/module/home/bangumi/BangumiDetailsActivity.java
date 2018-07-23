@@ -131,39 +131,6 @@ public class BangumiDetailsActivity extends RxBaseActivity {
                         hideProgressBar();
                         return;
                     }
-                    /*{
-                         "video":{
-                                    "id":xxx,
-                                    "publishDate":"xxx",
-                                    "actors":"xxx",
-                                    "directors":"xxx",
-                                    "description":"xxx",
-                                    "score":"xxx",
-                                    "isFinish":true|false,
-                                    "title":"xxxx",
-                                    "newest_ep_index":"x",//更新到第n集
-                                    "playCount":0,//播放数量
-                                    "favoriteCount":0,//追番数量
-                                    "cover":"xxxx",
-                                },
-                         "resArr":[
-                                    {"id":xxx,"name":"xxx","title":"xxxx","cover":"xxx"},
-                                    {....},
-                                ],
-                          "comments":{
-                                    "total":xx,
-                                    "pageSize":xx,
-                                    "pageCount":xx,
-                                    "pageIndex":xx,
-                                    "list":[...]
-                                },
-                        "tagArr":["泡面","奇幻","校园"],
-                        "seasonVerArr":[
-                                {"id":0,"type":0,"name":"国际版"},
-                                {"id":0,"type":0,"name":"中文版"},
-                                {"id":0,"type":0,"name":"粤语版"},
-                            ]
-                     }*/
                     _videoDetail = reply.GetJObject("video",new JSONObject());//new BangumiDetailsInfo.ResultBean(reply.GetJObject("video",null));
                     _videoComments = reply.GetJObject("comments",new JSONObject());
                     _videoTagArr = reply.GetJArray("tagArr",new JSONArray());
@@ -217,7 +184,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
         //设置评论数量
         mBangumiCommentCount.setText("评论 第1话(" + JsonUtil.GetInt(_videoComments,"totoal",0) + ")");
         //设置标签布局
-        List<String> tags = JsonUtil.ToStringList(_videoTagArr);//_videoDetail.getTags();
+        List<String> tags = JsonUtil.ToStringList(_videoTagArr,null);//_videoDetail.getTags();
         mTagsLayout.setAdapter(new TagAdapter<String>(tags) {
             @Override
             public View getView(FlowLayout parent, int position, String tagsBean) {
@@ -305,11 +272,7 @@ public class BangumiDetailsActivity extends RxBaseActivity {
                 JsonUtil.SetValue(videoRes, "description", description);
             }
             mBangumiDetailsSelectionAdapter.notifyItemForeground(holder.getLayoutPosition());
-
-            Intent intent = new Intent(this, VideoDetailsActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra(Const.MODULE_PARAMS, videoRes.toString());
-            this.startActivity(intent);//跳转并将参数将数据传递给下一个页面
+            VideoDetailsActivity.launch(this,videoRes);
         });
     }
 

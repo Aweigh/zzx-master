@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 
 import java.io.File;
 
@@ -185,5 +186,15 @@ public class CommonUtil {
             e.printStackTrace();
         }
         return verName;
+    }
+    ///<summary>判断给定字符串是否为NULL或空白字符串</summary>
+    public static boolean isNullOrWhiteSpace(String text){
+        if(TextUtils.isEmpty(text)) return  true;
+        for (int i = 0;i<text.length();i++)
+        {
+            if(Character.isWhitespace(text.charAt(i))) continue;
+            return false;
+        }
+        return true;
     }
 }

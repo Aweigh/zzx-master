@@ -2,21 +2,41 @@
 自定义JSON文件,支持"//"单行注释或/* 多行注释,但是这些注释字符串必须在每行的起始位置，否则不认为是注释。
 本文件用于配置程序基础数据
 
-字段说明:
+Global：全局配置字段说明:
 Account：表示账号相关数据,格式:{"id":xxx,"name":"xxxx"}
          这是一个json数据将经过RC4+Base64加密成密文,密钥是服务端独享的SERVER_SECRET_KEY
          这里使用加密配置是为防止AccountID太容易被伪造,毕竟APK用Java写的是可反汇编的
          例如:明文配置=>{"id":3,"name":"JWeigh"},密文配置=>TY4Iu+7H8jMP8HHeMHdvenc5eNWhMWAj
-
 Channel：渠道号
 ServerURL：服务器BaseURL,模拟器中调试不能用localhost,因为模拟器独立设备,172.16.31.54:3573 or www.zhizhuxun.com
 HttpUserAgent：表示向ZZX服务器发起HTTP请求时携带的UserAgent值
 SplashDuration：表示启动页面或广告页面的停留时间(ms)
+
+VideoPage：视频页面配置
+xxxx_title：xxx标题
+
+TotalStationSearch：全站搜索界面
+xxxx_title：tab标签页标题
 */
 {
-  "Account":"TY4Iu+7H8jMP8HHeMHdvenc5eNWhMWAj",
-  "Channel":"test",
-  "ServerURL":"http://172.16.31.51:3573/",
-  "HttpUserAgent":"ZZX Android Client",
-  "SplashDuration":3000
+  "Global":{
+    "Account":"TY4Iu+7H8jMP8HHeMHdvenc5eNWhMWAj",
+    "Channel":"test",
+    "ServerURL":"http://172.16.31.51:3573/",
+    "HttpUserAgent":"ZZX Android Client",
+    "SplashDuration":2000
+  },
+  "VideoPage":{
+    "hot_title":"正在热播",
+    "latest_title":"最新上映",
+    "recommend_title":"热门/推荐",
+    "newest_ep_index_format":"更新至第%d集",
+    "watching_count_format":"%d人在看",
+    "more_text":"更多.."
+  },
+  "TotalStationSearch":{
+    "all_title":"综合",
+    "video_title":"影视",
+    "resource_title":"视频"
+  }
 }

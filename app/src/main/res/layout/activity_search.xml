@@ -41,14 +41,13 @@
 
         </LinearLayout>
 
-
+        <!-- 加载动画控件 -->
         <ImageView
             android:id="@+id/iv_search_loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone" />
-
 
     </FrameLayout>
 

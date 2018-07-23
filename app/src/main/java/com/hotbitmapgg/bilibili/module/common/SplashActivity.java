@@ -9,6 +9,7 @@ import com.hotbitmapgg.bilibili.entity.ServerReply;
 import com.hotbitmapgg.bilibili.network.RetrofitHelper;
 import com.hotbitmapgg.bilibili.utils.Const;
 import com.hotbitmapgg.bilibili.utils.ConstantUtil;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.utils.PreferenceUtil;
 import com.hotbitmapgg.bilibili.utils.SystemUiVisibilityUtil;
 import com.hotbitmapgg.ohmybilibili.R;
@@ -41,7 +42,9 @@ public class SplashActivity extends RxActivity
     }
 
     private void setUpSplash() {
-        Observable.timer(AppContext.SplashDuration, TimeUnit.MILLISECONDS)
+        //获取启动页面或广告页面的停留时间(ms)
+        int splashDuration = JsonUtil.GetInt(AppContext.GlobalCfg,"SplashDuration",3*Const.MillSecond);
+        Observable.timer(splashDuration, TimeUnit.MILLISECONDS)
                 .compose(bindToLifecycle())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> finishTask(0x1));//3s启动画面结束
@@ -70,7 +73,7 @@ public class SplashActivity extends RxActivity
     */
     private void loadData()
     {
-        RetrofitHelper.getZZXAPI().getConfiguration() .
+        RetrofitHelper.getZZXAPI(Const.C_ZZXUSS|Const.C_STOKEN).getConfiguration() .
                 compose(bindToLifecycle()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()) .
                 subscribe(response -> {
                     ServerReply reply = new ServerReply(response);
@@ -79,7 +82,6 @@ public class SplashActivity extends RxActivity
                         return;
                     }
                     AppContext.CatalogArr = reply.GetJObjArray("CatalogArr");
-                    AppContext.VideoPageCfg = reply.GetJObject("VideoPageCfg",new JSONObject());
                     finishTask(0x2);//加载数据完成
                 },throwable -> {
                     Log.e(Const.LOG_TAG,throwable.getMessage());

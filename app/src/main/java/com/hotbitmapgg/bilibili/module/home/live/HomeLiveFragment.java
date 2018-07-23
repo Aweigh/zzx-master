@@ -91,8 +91,6 @@ public class HomeLiveFragment extends RxLazyFragment {
     @Override
     protected void loadData()
     {
-        //awTest();
-
         /*by="Aweigh" date="2018/5/21 10:35"
           compose(bindToLifecycle()):在子类使用Observable中的compose操作符，完成Observable发布的事件和当前的组件绑定，实现生命周期同步。
           从而实现当前组件生命周期结束时，自动取消对Observable订阅。

@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:overScrollMode="never" />
 
-
+    <!-- 加载界面 -->
     <ImageView
         android:id="@+id/iv_search_loading"
         android:layout_width="wrap_content"
@@ -17,7 +17,7 @@
         android:layout_gravity="center"
         android:visibility="gone" />
 
-
+    <!-- 搜索不到内容界面 -->
     <ImageView
         android:id="@+id/empty_view"
         android:layout_width="wrap_content"

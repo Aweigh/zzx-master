@@ -188,6 +188,12 @@ public class VideoDetailsActivity extends RxBaseActivity {
         intent.putExtra(ConstantUtil.EXTRA_IMG_URL, imgUrl);
         activity.startActivity(intent);
     }
+    public static void launch(Activity activity,JSONObject videoRes){
+        Intent intent = new Intent(activity, VideoDetailsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(Const.MODULE_PARAMS, videoRes.toString());
+        activity.startActivity(intent);//跳转并将参数将数据传递给下一个页面
+    }
 
     private void showFAB() {
         mFAB.animate().scaleX(1f).scaleY(1f)

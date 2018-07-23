@@ -92,6 +92,11 @@ public class JsonUtil
         if(obj==null || key==null || key.isEmpty() || !obj.has(key)) return def;
         return  obj.optString(key);
     }
+    public static String GetString(JSONObject obj,String key)
+    {
+        if(obj==null || key==null || key.isEmpty() || !obj.has(key)) return Const.EMPTY;
+        return  obj.optString(key);
+    }
     public static String GetDefStrIfEmpty(JSONObject obj,String key,String def)
     {
         if(obj==null || key==null || key.isEmpty() || !obj.has(key)) return def;
@@ -155,13 +160,23 @@ public class JsonUtil
         }
         return  lst;
     }
-    public static List<String> ToStringList(JSONArray arr)
+    public static List<String> ToStringList(JSONArray arr,String key)
     {
         if(arr == null) return  null;
+
+        String item = null;
+        boolean isObjectItem = !TextUtils.isEmpty(key);
         List<String> lst = new ArrayList<String>();
         for (int i = 0;i<arr.length();i++)
         {
-            String item = arr.optString(i);
+            item = null;
+            if(!isObjectItem) {
+                item = arr.optString(i);
+            }
+            else{
+                JSONObject objTemp = arr.optJSONObject(i);
+                if(objTemp!=null) item = objTemp.optString(key);
+            }
             if(item==null) continue;
             lst.add(item);
         }

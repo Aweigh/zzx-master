@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -19,15 +20,20 @@ import android.widget.TextView;
 
 import com.flyco.tablayout.SlidingTabLayout;
 import com.hotbitmapgg.bilibili.base.RxBaseActivity;
+import com.hotbitmapgg.bilibili.entity.AppContext;
+import com.hotbitmapgg.bilibili.entity.ServerReply;
 import com.hotbitmapgg.bilibili.entity.search.SearchArchiveInfo;
 import com.hotbitmapgg.bilibili.network.RetrofitHelper;
-import com.hotbitmapgg.bilibili.utils.ConstantUtil;
+import com.hotbitmapgg.bilibili.utils.Const;
+import com.hotbitmapgg.bilibili.utils.JsonUtil;
 import com.hotbitmapgg.bilibili.utils.KeyBoardUtil;
 import com.hotbitmapgg.bilibili.utils.StatusBarUtil;
 import com.hotbitmapgg.bilibili.widget.NoScrollViewPager;
 import com.hotbitmapgg.ohmybilibili.R;
 import com.jakewharton.rxbinding.view.RxView;
 import com.jakewharton.rxbinding.widget.RxTextView;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,11 +65,10 @@ public class TotalStationSearchActivity extends RxBaseActivity {
     @BindView(R.id.search_layout)
     LinearLayout mSearchLayout;
 
-    private String content;
+    private String _queryKeyword = null;//查询关键字
     private AnimationDrawable mAnimationDrawable;
     private List<String> titles = new ArrayList<>();
     private List<Fragment> fragments = new ArrayList<>();
-    private List<SearchArchiveInfo.DataBean.NavBean> navs = new ArrayList<>();
 
     @Override
     public int getLayoutId() {
@@ -79,15 +84,15 @@ public class TotalStationSearchActivity extends RxBaseActivity {
     @Override
     public void initViews(Bundle savedInstanceState) {
         Intent intent = getIntent();
-        if (intent != null) {
-            content = intent.getStringExtra(ConstantUtil.EXTRA_CONTENT);
-        }
-        mLoadingView.setImageResource(R.drawable.anim_search_loading);
+        if (intent != null)
+            _queryKeyword = intent.getStringExtra(Const.MODULE_PARAMS);//获取查询关键字字符串
+
+        mLoadingView.setImageResource(R.drawable.anim_search_loading);//设置动画gif图片
         mAnimationDrawable = (AnimationDrawable) mLoadingView.getDrawable();
-        showSearchAnim();
+        //showSearchAnim();//显示搜索动画
         mSearchEdit.clearFocus();
-        mSearchEdit.setText(content);
-        getSearchData();
+        mSearchEdit.setText(_queryKeyword);
+        finishTask();
         search();
         setUpEditText();
     }
@@ -122,8 +127,8 @@ public class TotalStationSearchActivity extends RxBaseActivity {
                     KeyBoardUtil.closeKeybord(mSearchEdit, TotalStationSearchActivity.this);
                     showSearchAnim();
                     clearData();
-                    content = s;
-                    getSearchData();
+                    _queryKeyword = s;
+                    finishTask();
                 });
     }
 
@@ -138,49 +143,32 @@ public class TotalStationSearchActivity extends RxBaseActivity {
                     KeyBoardUtil.closeKeybord(mSearchEdit, TotalStationSearchActivity.this);
                     showSearchAnim();
                     clearData();
-                    content = s;
-                    getSearchData();
+                    _queryKeyword = s;
+                    finishTask();
                 });
     }
 
     private void clearData() {
-        navs.clear();
         titles.clear();
         fragments.clear();
     }
 
-    private void getSearchData() {
-        int page = 1;
-        int pageSize = 10;
-        RetrofitHelper.getBiliAppAPI()
-                .searchArchive(content, page, pageSize)
-                .compose(this.bindToLifecycle())
-                .map(SearchArchiveInfo::getData)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(dataBean -> {
-                    navs.addAll(dataBean.getNav());
-                    finishTask();
-                }, throwable -> setEmptyLayout());
-    }
-
-
+    //显示界面,创建子标签页等
     @Override
     public void finishTask() {
-        hideSearchAnim();
-        titles.add("综合");
-        titles.add(navs.get(0).getName() + "(" + checkNumResults(navs.get(0).getTotal()) + ")");
-        titles.add(navs.get(1).getName() + "(" + checkNumResults(navs.get(1).getTotal()) + ")");
-        titles.add(navs.get(2).getName() + "(" + checkNumResults(navs.get(2).getTotal()) + ")");
+        //hideSearchAnim();//关闭搜索动画
+        titles.add(JsonUtil.GetString(AppContext.TotalStationSearchCfg,"all_title"));
+        titles.add(JsonUtil.GetString(AppContext.TotalStationSearchCfg,"video_title"));
+        titles.add(JsonUtil.GetString(AppContext.TotalStationSearchCfg,"resource_title"));
 
-        ArchiveResultsFragment archiveResultsFragment = ArchiveResultsFragment.newInstance(content);
-        BangumiResultsFragment bangumiResultsFragment = BangumiResultsFragment.newInstance(content);
-        UpperResultsFragment upperResultsFragment = UpperResultsFragment.newInstance(content);
-        MovieResultsFragment movieResultsFragment = MovieResultsFragment.newInstance(content);
+        ArchiveResultsFragment archiveResultsFragment = ArchiveResultsFragment.newInstance(_queryKeyword);
+        BangumiResultsFragment bangumiResultsFragment = BangumiResultsFragment.newInstance(_queryKeyword);
+        //UpperResultsFragment upperResultsFragment = UpperResultsFragment.newInstance(_queryKeyword);
+        MovieResultsFragment movieResultsFragment = MovieResultsFragment.newInstance(_queryKeyword);
 
         fragments.add(archiveResultsFragment);
         fragments.add(bangumiResultsFragment);
-        fragments.add(upperResultsFragment);
+        //fragments.add(upperResultsFragment);
         fragments.add(movieResultsFragment);
 
         SearchTabAdapter mAdapter = new SearchTabAdapter(getSupportFragmentManager(), titles, fragments);
@@ -188,7 +176,7 @@ public class TotalStationSearchActivity extends RxBaseActivity {
         mViewPager.setOffscreenPageLimit(titles.size());
         mSlidingTabLayout.setViewPager(mViewPager);
         measureTabLayoutTextWidth(0);
-        mSlidingTabLayout.setCurrentTab(0);
+        mSlidingTabLayout.setCurrentTab(0);//切换到第一个Tab页
         mAdapter.notifyDataSetChanged();
         mSlidingTabLayout.notifyDataSetChanged();
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -207,11 +195,6 @@ public class TotalStationSearchActivity extends RxBaseActivity {
         });
     }
 
-
-    public String checkNumResults(int numResult) {
-        return numResult > 100 ? "99+" : String.valueOf(numResult);
-    }
-
     private void measureTabLayoutTextWidth(int position) {
         String title = titles.get(position);
         TextView titleView = mSlidingTabLayout.getTitleView(position);
@@ -219,24 +202,23 @@ public class TotalStationSearchActivity extends RxBaseActivity {
         float textWidth = paint.measureText(title);
         mSlidingTabLayout.setIndicatorWidth(textWidth / 3);
     }
-
+    //显示搜索动画
     private void showSearchAnim() {
         mLoadingView.setVisibility(View.VISIBLE);
         mSearchLayout.setVisibility(View.GONE);
         mAnimationDrawable.start();
     }
-
-
+    //关闭搜索动画
     private void hideSearchAnim() {
         mLoadingView.setVisibility(View.GONE);
         mSearchLayout.setVisibility(View.VISIBLE);
         mAnimationDrawable.stop();
     }
-
+    //显示搜索不到数据
     public void setEmptyLayout() {
         mLoadingView.setVisibility(View.VISIBLE);
         mSearchLayout.setVisibility(View.GONE);
-        mLoadingView.setImageResource(R.drawable.search_failed);
+        mLoadingView.setImageResource(R.drawable.search_failed);//设置搜索失败图片
     }
 
     @OnClick(R.id.search_back)
@@ -254,9 +236,9 @@ public class TotalStationSearchActivity extends RxBaseActivity {
     }
 
 
-    public static void launch(Activity activity, String str) {
+    public static void launch(Activity activity, String params) {
         Intent mIntent = new Intent(activity, TotalStationSearchActivity.class);
-        mIntent.putExtra(ConstantUtil.EXTRA_CONTENT, str);
+        mIntent.putExtra(Const.MODULE_PARAMS, params);
         activity.startActivity(mIntent);
     }
 
